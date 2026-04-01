@@ -4,6 +4,7 @@
     using System.CommandLine;
     using System.Text.Json;
     using System.Threading.Tasks;
+    using TaskTrackerCLI.Commands;
     using TaskTrackerCLI.Models;
 
     internal
@@ -17,22 +18,14 @@
 
             RootCommand rootCommand = new("Sample app for System.CommandLine");
 
-            Argument<string> addArgument = new("add")
-            {
-                Description = "A positional argument that receives a task."
-            };
+            AddCommand addSubCommand = new AddCommand();
 
-            Command addCommand = new("add", "Add an entry to the file.");
-            addCommand.SetAction((parseResult) =>
-            {
-                string? result = parseResult.GetValue(addArgument);
-                Console.WriteLine($"You entered: {result}");
+            
 
-            });
+            
+            
 
-            addCommand.Arguments.Add(addArgument);
-
-            rootCommand.Subcommands.Add(addCommand);
+            rootCommand.Subcommands.Add(addSubCommand.command);
 
 
             return rootCommand.Parse(args).Invoke();
