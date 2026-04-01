@@ -1,8 +1,9 @@
-﻿using System;
-
-public class Class1
+﻿namespace TaskTrackerCLI.Commands
 {
-	public Class1()
-	{
-	}
+    public class ListCommand
+    {
+
+    }
 }
+
+

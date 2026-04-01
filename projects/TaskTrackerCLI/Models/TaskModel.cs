@@ -1,10 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TaskTrackerCLI.Models
+﻿namespace TaskTrackerCLI.Models
 {
-    internal class TaskModel
+    public class TaskModel
     {
+        required public int id { get; set; }
+        required public string description { get; set; }
+        public enum Status { todo, inProgress, done };
+        public Status status {  get; set; }
+        private DateTime createdAt { get; set; }
+        private DateTime updatedAt { get; set; }
+
     }
 }
