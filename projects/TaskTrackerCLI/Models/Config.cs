@@ -2,7 +2,7 @@
 {
     public class Config
     {
-        required public string  NombreApp { get; set; }
-        required public string Version { get; set; }
+        public string NombreApp { get; set; } = "MiApp";
+        public string Version { get; set; } = "1.0.0";
     }
 }

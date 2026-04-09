@@ -1,11 +1,16 @@
 ﻿using System.CommandLine;
+using System.Text.Json;
+using TaskTrackerCLI.Models;
 
 namespace TaskTrackerCLI.Commands
 {
     public class AddCommand
     {
-        public AddCommand()
+        private readonly string _path;
+        public AddCommand(string path)
         {
+            _path = path;
+
             argument = new("add")
             {
                 Description = "A positional argument that receives a task."
@@ -18,16 +23,55 @@ namespace TaskTrackerCLI.Commands
 
         public Argument<string> argument;
         public Command command { get; }
-        public void Handle(ParseResult parseResult) {
+        public AppDataJsonModel model { get; set; }
 
-            
-                string? result = parseResult.GetValue(argument);
-                Console.WriteLine($"You entered: {result}");
+        public void Handle(ParseResult parseResult)
+        {
 
-        
+
+            string? result = parseResult.GetValue(argument);
+
+            Execute(_path, result);
+
+
+        }
+
+        public void Execute(string path, string? argument)
+        {
+
+            var tasks = LoadTasks(path);
+
+            Guid id = Guid.NewGuid();
+
+            TaskModel newTask = new TaskModel
+            {
+                id = id,
+                description = argument ?? string.Empty,
+                status = TaskModel.Status.todo,
+                createdAt = DateTime.Now,
+                updatedAt = DateTime.Now
+            };
+
+            model.Tasks.Add(newTask);
+            SaveTasks(path);
+
+            Console.WriteLine($"Task added successfully ID: {id}");
+        }
+
+        private AppDataJsonModel? LoadTasks(string path)
+        {
+            string json = File.ReadAllText(path);
+            return JsonSerializer.Deserialize<AppDataJsonModel>(json);
+        }
+
+        private void SaveTasks(string path)
+        {
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string json = JsonSerializer.Serialize(model, options);
+            File.WriteAllText(path, json);
         }
 
     }
 }
 
-    
+
