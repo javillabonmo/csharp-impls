@@ -20,10 +20,13 @@
 
             setup(getPath(file), jsonModel);
 
-            RootCommand rootCommand = new("Sample app for System.CommandLine");
+            RootCommand rootCommand = new("The command line accept user actions and inputs as arguments, and store the tasks in a JSON file");
 
             AddCommand addSubCommand = new AddCommand(getPath(file));
             addSubCommand.model = jsonModel;
+
+            ListCommand listSubCommand = new ListCommand(getPath(file));
+            listSubCommand.model = jsonModel;
 
 
 
@@ -31,6 +34,7 @@
 
 
             rootCommand.Subcommands.Add(addSubCommand.command);
+            rootCommand.Subcommands.Add(listSubCommand.command);
 
 
             return rootCommand.Parse(args).Invoke();

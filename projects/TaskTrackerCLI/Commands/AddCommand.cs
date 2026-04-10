@@ -11,11 +11,11 @@ namespace TaskTrackerCLI.Commands
         {
             _path = path;
 
-            argument = new("add")
+            argument = new("task")
             {
                 Description = "A positional argument that receives a task."
             };
-            command = new("add", "Add an entry to the file.");
+            command = new("string", "Add an entry to the file.");
             command.SetAction(Handle);
             command.Arguments.Add(argument);
 
@@ -39,13 +39,11 @@ namespace TaskTrackerCLI.Commands
         public void Execute(string path, string? argument)
         {
 
-            var tasks = LoadTasks(path);
-
-            Guid id = Guid.NewGuid();
+            model = LoadTasks(path);
 
             TaskModel newTask = new TaskModel
             {
-                id = id,
+                id = model.Tasks.Count > 0 ? model.Tasks.Max(t => t.id) + 1 : 1,
                 description = argument ?? string.Empty,
                 status = TaskModel.Status.todo,
                 createdAt = DateTime.Now,
@@ -55,7 +53,7 @@ namespace TaskTrackerCLI.Commands
             model.Tasks.Add(newTask);
             SaveTasks(path);
 
-            Console.WriteLine($"Task added successfully ID: {id}");
+            Console.WriteLine($"Task added successfully ID: {newTask.id}");
         }
 
         private AppDataJsonModel? LoadTasks(string path)
