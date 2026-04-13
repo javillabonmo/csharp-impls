@@ -15,7 +15,7 @@ namespace TaskTrackerCLI.Commands
             {
                 Description = "A positional argument that receives a task."
             };
-            command = new("string", "Add an entry to the file.");
+            command = new("add", "Add an entry to the file.");
             command.SetAction(Handle);
             command.Arguments.Add(argument);
 

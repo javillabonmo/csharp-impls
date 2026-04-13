@@ -14,6 +14,8 @@
         static async Task<int> Main(string[] args)
         {
 
+
+
             string file = "config.json";
             AppDataJsonModel jsonModel = new AppDataJsonModel();
 
@@ -28,15 +30,18 @@
             ListCommand listSubCommand = new ListCommand(getPath(file));
             listSubCommand.model = jsonModel;
 
+            UpdateCommand updateSubCommand = new UpdateCommand(getPath(file));
+            updateSubCommand.model = jsonModel;
 
-
-
-
+            RemoveCommand deleteSubCommand = new RemoveCommand(getPath(file));
+            deleteSubCommand.model = jsonModel;
 
             rootCommand.Subcommands.Add(addSubCommand.command);
             rootCommand.Subcommands.Add(listSubCommand.command);
-
-
+            rootCommand.Subcommands.Add(updateSubCommand.command);
+            rootCommand.Subcommands.Add(deleteSubCommand.command);
+            rootCommand.Subcommands.Add(Program.InProgress());
+            rootCommand.Subcommands.Add(Program.Completed());
             return rootCommand.Parse(args).Invoke();
 
         }
@@ -63,6 +68,52 @@
             string basePath = AppContext.BaseDirectory;
             string outputPath = Path.Combine(basePath, "output");
             return Path.Combine(outputPath, fileName);
+
+        }
+
+        public static Command InProgress()
+        {
+            Command markInProgress;
+
+            markInProgress = new("mark-in-progress", "Mark a task as in progress");
+
+
+            Argument<string> markInProgressArgument;
+
+            markInProgressArgument = new("task-id")
+            {
+                Description = "A positional argument that receives a task id to be marked as in progress."
+            };
+
+            markInProgress.Arguments.Add(markInProgressArgument);
+
+
+            markInProgress.SetAction(HandleMarkInProgress);
+
+            return markInProgress;
+        }
+
+        public static Command Completed()
+        {
+            Command markCompleted;
+            markCompleted = new("mark-completed", "Mark a task as completed");
+            Argument<string> markCompletedArgument;
+
+            markCompletedArgument = new("task-id")
+            {
+                Description = "A positional argument that receives a task id to be marked as completed."
+            };
+            markCompleted.Arguments.Add(markCompletedArgument);
+            markCompleted.SetAction(HandleMarkCompleted);
+
+            return markCompleted;
+        }
+        public static void HandleMarkInProgress(ParseResult parseResult)
+        {
+
+        }
+        public static void HandleMarkCompleted(ParseResult parseResult)
+        {
 
         }
     }
