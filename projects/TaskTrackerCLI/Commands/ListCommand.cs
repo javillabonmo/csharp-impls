@@ -20,7 +20,7 @@ namespace TaskTrackerCLI.Commands
 
             _path = path;
 
-            
+
             command = new("list", "List the existing tasks");
             command.SetAction(Handle);
             //done
@@ -36,20 +36,20 @@ namespace TaskTrackerCLI.Commands
             command.Subcommands.Add(doneSubcommand);
             command.Subcommands.Add(todoSubcommand);
             command.Subcommands.Add(inProgressSubcommand);
-            
+
         }
         public void Handle(ParseResult parseResult)
         {
 
 
-            
 
-            
-                Console.WriteLine("The 'list' command does not require any arguments");
-                Execute(_path);
-            
 
-            
+
+            Console.WriteLine("The 'list' command does not require any arguments");
+            Execute(_path);
+
+
+
 
 
         }
@@ -66,7 +66,7 @@ namespace TaskTrackerCLI.Commands
                 }
             }
         }
-        
+
         public void HandleTodo(ParseResult parseResult)
         {
             Console.WriteLine("Listing tasks that are yet to be done:");
@@ -96,10 +96,10 @@ namespace TaskTrackerCLI.Commands
 
             model = LoadTasks(path);
             Console.WriteLine($"Tasks list: ");
-           
-                foreach (var task in model.Tasks)
-                {
-                    Console.WriteLine($"ID: {task.id}, Description: {task.description}, Status: {task.status}, Created At: {task.createdAt}, Updated At: {task.updatedAt}");
+
+            foreach (var task in model.Tasks)
+            {
+                Console.WriteLine($"ID: {task.id}, Description: {task.description}, Status: {task.status}, Created At: {task.createdAt}, Updated At: {task.updatedAt}");
             }
         }
         private AppDataJsonModel? LoadTasks(string path)

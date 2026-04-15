@@ -2,6 +2,7 @@
 
 {
     using System.CommandLine;
+    using System.Reflection;
     using System.Text.Json;
     using System.Threading.Tasks;
     using TaskTrackerCLI.Commands;
@@ -40,8 +41,8 @@
             rootCommand.Subcommands.Add(listSubCommand.command);
             rootCommand.Subcommands.Add(updateSubCommand.command);
             rootCommand.Subcommands.Add(deleteSubCommand.command);
-            rootCommand.Subcommands.Add(Program.InProgress());
-            rootCommand.Subcommands.Add(Program.Completed());
+            rootCommand.Subcommands.Add(Program.InProgress(jsonModel));
+            rootCommand.Subcommands.Add(Program.Completed(jsonModel));
             return rootCommand.Parse(args).Invoke();
 
         }
@@ -71,7 +72,7 @@
 
         }
 
-        public static Command InProgress()
+        public static Command InProgress(AppDataJsonModel model)
         {
             Command markInProgress;
 
@@ -86,14 +87,32 @@
             };
 
             markInProgress.Arguments.Add(markInProgressArgument);
+            model = LoadTasks(getPath("config.json"));
 
+            markInProgress.SetAction((parseResult) => {
+                string? result = parseResult.GetValue(markInProgressArgument);
 
-            markInProgress.SetAction(HandleMarkInProgress);
+                int.TryParse(result, out int id);
+
+                model.Tasks.ForEach(task =>
+                {
+                    if (task.id == id)
+                    {
+                     task.status = TaskModel.Status.inProgress;
+                    }
+                });
+
+                Console.WriteLine(model.ToString());
+
+                
+                SaveTasks(getPath("config.json"), model);
+
+            });
 
             return markInProgress;
         }
 
-        public static Command Completed()
+        public static Command Completed(AppDataJsonModel model)
         {
             Command markCompleted;
             markCompleted = new("mark-completed", "Mark a task as completed");
@@ -104,17 +123,39 @@
                 Description = "A positional argument that receives a task id to be marked as completed."
             };
             markCompleted.Arguments.Add(markCompletedArgument);
-            markCompleted.SetAction(HandleMarkCompleted);
+            model = LoadTasks(getPath("config.json"));
+            markCompleted.SetAction((parseResult) => {
+                string? result = parseResult.GetValue(markCompletedArgument);
+
+                int.TryParse (result, out int id);
+
+                model.Tasks.ForEach(task =>
+                {
+                    if (task.id == id)
+                    {
+                        task.status = TaskModel.Status.done;
+                    }
+                });
+               
+                SaveTasks(getPath("config.json"), model);
+
+            } );
+
 
             return markCompleted;
         }
-        public static void HandleMarkInProgress(ParseResult parseResult)
-        {
 
-        }
-        public static void HandleMarkCompleted(ParseResult parseResult)
+        private static void SaveTasks(string path, AppDataJsonModel model)
         {
-
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string json = JsonSerializer.Serialize(model, options);
+            File.WriteAllText(path, json);
         }
+        private static AppDataJsonModel? LoadTasks(string path)
+        {
+            string json = File.ReadAllText(path);
+            return JsonSerializer.Deserialize<AppDataJsonModel>(json);
+        }
+
     }
 }
