@@ -7,6 +7,8 @@
     using System.Threading.Tasks;
     using TaskTrackerCLI.Commands;
     using TaskTrackerCLI.Models;
+    using TaskTrackerCLI.Repositories;
+    using TaskTrackerCLI.Repositories.Interfaces;
 
     internal
         class Program
@@ -14,55 +16,38 @@
 
         static async Task<int> Main(string[] args)
         {
+            string file = "tasks.json";
+            ITaskRepository jsonTaskRepository = new JsonTaskRepository(getPath(file));
+
+            
+            
 
 
-
-            string file = "config.json";
-            AppDataJsonModel jsonModel = new AppDataJsonModel();
-
-
-            setup(getPath(file), jsonModel);
+            
 
             RootCommand rootCommand = new("The command line accept user actions and inputs as arguments, and store the tasks in a JSON file");
 
-            AddCommand addSubCommand = new AddCommand(getPath(file));
-            addSubCommand.model = jsonModel;
+            AddCommand addSubCommand = new AddCommand(jsonTaskRepository);
 
-            ListCommand listSubCommand = new ListCommand(getPath(file));
-            listSubCommand.model = jsonModel;
+            //ListCommand listSubCommand = new ListCommand(getPath(file));
+            //listSubCommand.model = jsonModel;
 
-            UpdateCommand updateSubCommand = new UpdateCommand(getPath(file));
-            updateSubCommand.model = jsonModel;
+            //UpdateCommand updateSubCommand = new UpdateCommand(getPath(file));
+            //updateSubCommand.model = jsonModel;
 
-            RemoveCommand deleteSubCommand = new RemoveCommand(getPath(file));
-            deleteSubCommand.model = jsonModel;
+            //RemoveCommand deleteSubCommand = new RemoveCommand(getPath(file));
+            //deleteSubCommand.model = jsonModel;
 
             rootCommand.Subcommands.Add(addSubCommand.command);
-            rootCommand.Subcommands.Add(listSubCommand.command);
-            rootCommand.Subcommands.Add(updateSubCommand.command);
-            rootCommand.Subcommands.Add(deleteSubCommand.command);
-            rootCommand.Subcommands.Add(Program.InProgress(jsonModel));
-            rootCommand.Subcommands.Add(Program.Completed(jsonModel));
+            //rootCommand.Subcommands.Add(listSubCommand.command);
+            //rootCommand.Subcommands.Add(updateSubCommand.command);
+            //rootCommand.Subcommands.Add(deleteSubCommand.command);
+            //rootCommand.Subcommands.Add(Program.InProgress(jsonModel));
+            //rootCommand.Subcommands.Add(Program.Completed(jsonModel));
             return rootCommand.Parse(args).Invoke();
 
         }
-        static void setup(string path, AppDataJsonModel model)
-        {
-
-
-            Console.WriteLine($"Checking if json file exists at: {path}");
-
-            if (!File.Exists(path))
-            {
-                string basePath = AppContext.BaseDirectory;
-                string outputPath = Path.Combine(basePath, "output");
-                Directory.CreateDirectory(outputPath);
-
-                string json = JsonSerializer.Serialize(model);
-                File.WriteAllText(path, json);
-            }
-
-        }
+        
 
         public static string getPath(string fileName)
         {

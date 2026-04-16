@@ -1,15 +1,19 @@
 ﻿using System.CommandLine;
-using System.Text.Json;
+
 using TaskTrackerCLI.Models;
+using TaskTrackerCLI.Repositories.Interfaces;
 
 namespace TaskTrackerCLI.Commands
 {
     public class AddCommand
     {
         private readonly string _path;
-        public AddCommand(string path)
+
+        private readonly ITaskRepository _repository;
+        public AddCommand(ITaskRepository repository)
         {
-            _path = path;
+            _repository = repository;
+            _path = repository.filePath;
 
             argument = new("task")
             {
@@ -23,7 +27,6 @@ namespace TaskTrackerCLI.Commands
 
         public Argument<string> argument;
         public Command command { get; }
-        public AppDataJsonModel model { get; set; }
 
         public void Handle(ParseResult parseResult)
         {
@@ -38,8 +41,7 @@ namespace TaskTrackerCLI.Commands
 
         public void Execute(string path, string? argument)
         {
-
-            model = LoadTasks(path);
+            AppDataJsonModel model = _repository.GetAllTasks();
 
             TaskModel newTask = new TaskModel
             {
@@ -51,23 +53,12 @@ namespace TaskTrackerCLI.Commands
             };
 
             model.Tasks.Add(newTask);
-            SaveTasks(path);
+            _repository.Save(model);
 
             Console.WriteLine($"Task added successfully ID: {newTask.id}");
         }
 
-        private AppDataJsonModel? LoadTasks(string path)
-        {
-            string json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<AppDataJsonModel>(json);
-        }
-
-        private void SaveTasks(string path)
-        {
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string json = JsonSerializer.Serialize(model, options);
-            File.WriteAllText(path, json);
-        }
+        
 
     }
 }
