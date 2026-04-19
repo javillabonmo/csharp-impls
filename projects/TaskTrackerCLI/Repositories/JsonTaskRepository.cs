@@ -6,23 +6,25 @@ namespace TaskTrackerCLI.Repositories
 {
     public class JsonTaskRepository : ITaskRepository
     {
-        private readonly JsonRepository _context;
+        private readonly JsonDataSource _context;
         public string filePath { get; }
 
         public JsonTaskRepository(string filePath)
         {
             this.filePath = filePath;
-            _context = new JsonRepository(filePath);
+            _context = new JsonDataSource(filePath);
             
         }
 
-        public AppDataJsonModel GetAllTasks()
+        public async Task<AppDataJsonModel> GetAllTasks()
         {
-            return _context.LoadTasks();
+            AppDataJsonModel? model = await _context.LoadTasks();
+            return model ?? throw new Exception("Error: the task path doesnt exist.");
         }
-        public void Save(AppDataJsonModel model)
+
+        public async Task SaveTask(AppDataJsonModel model)
         {
-            _context.SaveTasks(model);
+            await _context.SaveTasks(model);
         }
 
        

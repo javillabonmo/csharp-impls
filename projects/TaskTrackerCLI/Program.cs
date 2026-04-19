@@ -2,7 +2,6 @@
 
 {
     using System.CommandLine;
-    using System.Reflection;
     using System.Text.Json;
     using System.Threading.Tasks;
     using TaskTrackerCLI.Commands;
@@ -29,6 +28,7 @@
 
             AddCommand addSubCommand = new AddCommand(jsonTaskRepository);
 
+
             //ListCommand listSubCommand = new ListCommand(getPath(file));
             //listSubCommand.model = jsonModel;
 
@@ -38,7 +38,7 @@
             //RemoveCommand deleteSubCommand = new RemoveCommand(getPath(file));
             //deleteSubCommand.model = jsonModel;
 
-            rootCommand.Subcommands.Add(addSubCommand.command);
+            rootCommand.Subcommands.Add(addSubCommand.Command);
             //rootCommand.Subcommands.Add(listSubCommand.command);
             //rootCommand.Subcommands.Add(updateSubCommand.command);
             //rootCommand.Subcommands.Add(deleteSubCommand.command);

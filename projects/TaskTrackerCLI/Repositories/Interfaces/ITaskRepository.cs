@@ -4,8 +4,8 @@ namespace TaskTrackerCLI.Repositories.Interfaces
 {
     public interface ITaskRepository
     {
-        public AppDataJsonModel GetAllTasks();
+        public Task<AppDataJsonModel> GetAllTasks();
         public string filePath { get; }
-        public void Save(AppDataJsonModel model);
+        public Task SaveTask(AppDataJsonModel model);
     }
 }

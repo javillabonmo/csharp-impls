@@ -5,43 +5,45 @@ using TaskTrackerCLI.Repositories.Interfaces;
 
 namespace TaskTrackerCLI.Commands
 {
-    public class AddCommand
+    public sealed class AddCommand
     {
-        private readonly string _path;
 
         private readonly ITaskRepository _repository;
         public AddCommand(ITaskRepository repository)
         {
-            _repository = repository;
-            _path = repository.filePath;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            
 
-            argument = new("task")
+            _argument = new Argument<string>("task")
             {
                 Description = "A positional argument that receives a task."
             };
-            command = new("add", "Add an entry to the file.");
-            command.SetAction(Handle);
-            command.Arguments.Add(argument);
+
+            _command = new Command("add", "Add an entry to the file.");
+            _command.SetAction(Handle);
+            _command.Arguments.Add(_argument);
 
         }
 
-        public Argument<string> argument;
-        public Command command { get; }
+        private readonly Argument<string> _argument;
 
-        public void Handle(ParseResult parseResult)
+        private readonly Command _command;
+        public Command Command => _command;
+
+        public async Task Handle(ParseResult parseResult)
         {
 
 
-            string? result = parseResult.GetValue(argument);
+            string? result = parseResult.GetValue(_argument);
 
-            Execute(_path, result);
+            await Execute(result);
 
 
         }
 
-        public void Execute(string path, string? argument)
+        public async Task Execute(string? argument)
         {
-            AppDataJsonModel model = _repository.GetAllTasks();
+            AppDataJsonModel model = await _repository.GetAllTasks();
 
             TaskModel newTask = new TaskModel
             {
@@ -53,7 +55,7 @@ namespace TaskTrackerCLI.Commands
             };
 
             model.Tasks.Add(newTask);
-            _repository.Save(model);
+            await _repository.SaveTask(model);
 
             Console.WriteLine($"Task added successfully ID: {newTask.id}");
         }
