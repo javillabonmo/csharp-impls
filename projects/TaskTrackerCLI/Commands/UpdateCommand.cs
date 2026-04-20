@@ -1,53 +1,54 @@
 ﻿using System.CommandLine;
-using System.Reflection.Metadata;
-using System.Text.Json;
+
 using TaskTrackerCLI.Models;
+using TaskTrackerCLI.Repositories.Interfaces;
 
 namespace TaskTrackerCLI.Commands
 {
-    public class UpdateCommand
+    public sealed class UpdateCommand
     {
-        private readonly string _path;
-        public AppDataJsonModel model { get; set; }
-        public Command command { get; }
+
+        private readonly ITaskRepository _repository;
+
+        private readonly Command _command;
+        public Command Command => _command;
+
+        private Argument<string> _argument;
+        private Argument<string> _descArgument;
 
 
-        public Argument<string> argument;
-        public Argument<string> descArgument;
-
-
-        public UpdateCommand(string path)
+        public UpdateCommand(ITaskRepository repository)
         {
-            _path = path;
-            argument = new("task-id")
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _argument = new("task-id")
             {
                 Description = "A positional argument that receives a task id to be updated."
             };
-            descArgument = new("description")
+            _descArgument = new("description")
             {
                 Description = "A positional argument that receives a new description for the task."
             };
 
 
-            command = new("update", "Update an existing task");
+            _command = new("update", "Update an existing task");
 
 
 
 
-            command.Arguments.Add(argument);
-            command.Arguments.Add(descArgument);
-            command.SetAction(Handle);
+            _command.Arguments.Add(_argument);
+            _command.Arguments.Add(_descArgument);
+            _command.SetAction(Handle);
 
 
         }
 
-        public void Handle(ParseResult parseResult)
+        public async Task Handle(ParseResult parseResult)
         {
 
 
-            string? result = parseResult.GetValue(argument);
-            string? newDescription = parseResult.GetValue(descArgument);
-            Execute(_path, result, newDescription);
+            string? result = parseResult.GetValue(_argument);
+            string? newDescription = parseResult.GetValue(_descArgument);
+           await Execute(result, newDescription);
 
            
 
@@ -56,29 +57,37 @@ namespace TaskTrackerCLI.Commands
 
 
 
-        public void Execute(string path, string result, string newDescription)
+        public async Task Execute(string? result, string? newDescription)
         {
 
-            model = LoadTasks(path);
+            AppDataJsonModel model = _repository.GetAllTasks();
             int.TryParse(result, out int taskId);
+
             model.Tasks.Where(t => t.id == taskId).ToList().ForEach(t =>
             {
-                t.description = newDescription;
+                t.description = newDescription ?? t.description;
                 t.updatedAt = DateTime.Now;
             });
-            SaveTasks(path);
-        }
-        private AppDataJsonModel? LoadTasks(string path)
-        {
-            string json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<AppDataJsonModel>(json);
+
+            await _repository.SaveTask(model);
         }
 
-        private void SaveTasks(string path)
+        public sealed class MarkStatusCommand
         {
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string json = JsonSerializer.Serialize(model, options);
-            File.WriteAllText(path, json);
+            private readonly ITaskRepository _repository;
+            public MarkStatusCommand(ITaskRepository repository)
+            {
+                _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            }
+        }
+
+        public sealed class MarkInProgressCommand
+        {
+            private readonly ITaskRepository _repository;
+            public MarkInProgressCommand(ITaskRepository repository)
+            {
+                _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            }
         }
 
     }

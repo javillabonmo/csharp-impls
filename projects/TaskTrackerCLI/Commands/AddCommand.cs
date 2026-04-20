@@ -14,12 +14,12 @@ namespace TaskTrackerCLI.Commands
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             
 
-            _argument = new Argument<string>("task")
+            _argument = new("task")
             {
                 Description = "A positional argument that receives a task."
             };
 
-            _command = new Command("add", "Add an entry to the file.");
+            _command = new("add", "Add an entry to the file.");
             _command.SetAction(Handle);
             _command.Arguments.Add(_argument);
 
@@ -30,20 +30,20 @@ namespace TaskTrackerCLI.Commands
         private readonly Command _command;
         public Command Command => _command;
 
-        public async Task Handle(ParseResult parseResult)
+        public void Handle(ParseResult parseResult)
         {
 
 
             string? result = parseResult.GetValue(_argument);
 
-            await Execute(result);
+             Execute(result);
 
 
         }
 
         public async Task Execute(string? argument)
         {
-            AppDataJsonModel model = await _repository.GetAllTasks();
+            AppDataJsonModel model =  _repository.GetAllTasks();
 
             TaskModel newTask = new TaskModel
             {

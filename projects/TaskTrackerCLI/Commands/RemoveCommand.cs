@@ -1,60 +1,44 @@
 ﻿using System.CommandLine;
-using System.Reflection.Metadata;
-using System.Text.Json;
-using TaskTrackerCLI.Models;
+using TaskTrackerCLI.Repositories.Interfaces;
 
 namespace TaskTrackerCLI.Commands
 {
-    public class RemoveCommand
+    public sealed class RemoveCommand
     {
-        private readonly string _path;
-        public RemoveCommand(string path)
-        {
-            _path = path;
+        private readonly ITaskRepository _repository;
 
-            argument = new("task-id")
+        public RemoveCommand(ITaskRepository repository)
+        {
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+
+            _argument = new("task-id")
             {
                 Description = "A positional argument that receives a task id to be removed."
             };
-            command = new("delete", "Remove a task from the list.");
-            command.SetAction(Handle);
-            command.Arguments.Add(argument);
+            _command = new("delete", "Remove a task from the list.");
+            _command.SetAction(Handle);
+            _command.Arguments.Add(_argument);
         }
 
-        public Argument<string> argument;
-        public Command command { get; }
-        public AppDataJsonModel model { get; set; }
-        public void Handle(ParseResult parseResult)
+        private readonly Argument<string> _argument;
+        private readonly Command _command;
+
+            public Command Command => _command;
+        public async Task Handle(ParseResult parseResult)
         {
 
 
-            string? result = parseResult.GetValue(argument);
-            Execute(_path, result);
+            string? result = parseResult.GetValue(_argument);
+            await Execute(result);
 
 
 
         }
-        public void Execute(string path, string result)
-        {
-
-            model = LoadTasks(path);
+        public async Task Execute(string? result)
+        {  
             int.TryParse(result, out int taskId);
 
-            model.Tasks.RemoveAll(t => t.id == taskId);
-            SaveTasks(path);
-
-        }
-
-        private AppDataJsonModel? LoadTasks(string path)
-        {
-            string json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<AppDataJsonModel>(json);
-        }
-        private void SaveTasks(string path)
-        {
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string json = JsonSerializer.Serialize(model, options);
-            File.WriteAllText(path, json);
+            await _repository.RemoveTask(taskId);
         }
     }
 }

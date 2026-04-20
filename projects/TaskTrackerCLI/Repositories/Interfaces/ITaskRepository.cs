@@ -4,8 +4,13 @@ namespace TaskTrackerCLI.Repositories.Interfaces
 {
     public interface ITaskRepository
     {
-        public Task<AppDataJsonModel> GetAllTasks();
-        public string filePath { get; }
+        public AppDataJsonModel GetAllTasks();
+        public string FilePath { get; }
         public Task SaveTask(AppDataJsonModel model);
+
+        public Task RemoveTask(int taskId);
+
+        public void PrintTasksByStatus(TaskModel.Status status);
+        public void PrintTask(TaskModel task);
     }
 }

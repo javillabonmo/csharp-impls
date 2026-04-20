@@ -14,7 +14,7 @@ namespace TaskTrackerCLI.Repositories
             jsonModel = LoadTasks().Result ?? new AppDataJsonModel();
         }
 
-        public async Task<AppDataJsonModel?> LoadTasks()
+        private async Task<AppDataJsonModel?> LoadTasks()
         {
             if (!File.Exists(path)) return null;
             try
@@ -56,7 +56,7 @@ namespace TaskTrackerCLI.Repositories
             }
         }
 
-        public async Task Setup()
+        private async Task Setup()
         {
             Console.WriteLine($"Checking if json file exists at: {path}");
 
@@ -86,5 +86,7 @@ namespace TaskTrackerCLI.Repositories
             }
 
         }
+
+        
     }
 }

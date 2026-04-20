@@ -2,7 +2,6 @@
 
 {
     using System.CommandLine;
-    using System.Text.Json;
     using System.Threading.Tasks;
     using TaskTrackerCLI.Commands;
     using TaskTrackerCLI.Models;
@@ -18,30 +17,22 @@
             string file = "tasks.json";
             ITaskRepository jsonTaskRepository = new JsonTaskRepository(getPath(file));
 
-            
-            
-
-
-            
-
             RootCommand rootCommand = new("The command line accept user actions and inputs as arguments, and store the tasks in a JSON file");
 
             AddCommand addSubCommand = new AddCommand(jsonTaskRepository);
 
 
-            //ListCommand listSubCommand = new ListCommand(getPath(file));
-            //listSubCommand.model = jsonModel;
+            ListCommand listSubCommand = new ListCommand(jsonTaskRepository);
 
-            //UpdateCommand updateSubCommand = new UpdateCommand(getPath(file));
-            //updateSubCommand.model = jsonModel;
+            UpdateCommand updateSubCommand = new UpdateCommand(jsonTaskRepository);
+            
 
-            //RemoveCommand deleteSubCommand = new RemoveCommand(getPath(file));
-            //deleteSubCommand.model = jsonModel;
+            RemoveCommand deleteSubCommand = new RemoveCommand(jsonTaskRepository);
 
             rootCommand.Subcommands.Add(addSubCommand.Command);
-            //rootCommand.Subcommands.Add(listSubCommand.command);
-            //rootCommand.Subcommands.Add(updateSubCommand.command);
-            //rootCommand.Subcommands.Add(deleteSubCommand.command);
+            rootCommand.Subcommands.Add(listSubCommand.Command);
+            rootCommand.Subcommands.Add(updateSubCommand.Command);
+            rootCommand.Subcommands.Add(deleteSubCommand.Command);
             //rootCommand.Subcommands.Add(Program.InProgress(jsonModel));
             //rootCommand.Subcommands.Add(Program.Completed(jsonModel));
             return rootCommand.Parse(args).Invoke();
@@ -130,17 +121,7 @@
             return markCompleted;
         }
 
-        private static void SaveTasks(string path, AppDataJsonModel model)
-        {
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string json = JsonSerializer.Serialize(model, options);
-            File.WriteAllText(path, json);
-        }
-        private static AppDataJsonModel? LoadTasks(string path)
-        {
-            string json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<AppDataJsonModel>(json);
-        }
+       
 
     }
 }

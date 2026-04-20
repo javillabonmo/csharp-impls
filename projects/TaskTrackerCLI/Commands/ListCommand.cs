@@ -1,114 +1,78 @@
-﻿using System.CommandLine;
-using System.Reflection;
-using System.Reflection.Metadata;
-using System.Text.Json;
+using System.CommandLine;
+
 using TaskTrackerCLI.Models;
+using TaskTrackerCLI.Repositories.Interfaces;
 
 namespace TaskTrackerCLI.Commands
 {
-    public class ListCommand
+    public sealed class ListCommand
     {
-        private readonly string _path;
-        public Argument<string> argument;
-        public Command command { get; }
-        public Command doneSubcommand { get; }
-        public Command todoSubcommand { get; }
-        public Command inProgressSubcommand { get; }
-        public AppDataJsonModel model { get; set; }
-        public ListCommand(string path)
+        private readonly ITaskRepository _repository;
+        private readonly Command _command;
+        private readonly Command _doneSubcommand;
+        private readonly Command _todoSubcommand;
+        private readonly Command _inProgressSubcommand;
+
+        public Command Command => _command;
+
+        public ListCommand(ITaskRepository repository)
         {
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
-            _path = path;
+            _command = new Command("list", "List the existing tasks");
+            _command.SetAction(Handle);
 
+            _doneSubcommand = new Command("done", "List the completed tasks");
+            _doneSubcommand.SetAction(HandleDone);
 
-            command = new("list", "List the existing tasks");
-            command.SetAction(Handle);
-            //done
-            doneSubcommand = new Command("done", "List the completed tasks");
-            doneSubcommand.SetAction(HandleDone);
-            //todo
-            todoSubcommand = new Command("todo", "List the tasks that are yet to be done");
-            todoSubcommand.SetAction(HandleTodo);
-            //in-progress
-            inProgressSubcommand = new Command("in-progress", "List the tasks that are in progress");
-            inProgressSubcommand.SetAction(HandleInProgress);
-            //subcommand handlers
-            command.Subcommands.Add(doneSubcommand);
-            command.Subcommands.Add(todoSubcommand);
-            command.Subcommands.Add(inProgressSubcommand);
+            _todoSubcommand = new Command("todo", "List the tasks that are yet to be done");
+            _todoSubcommand.SetAction(HandleTodo);
 
+            _inProgressSubcommand = new Command("in-progress", "List the tasks that are in progress");
+            _inProgressSubcommand.SetAction(HandleInProgress);
+
+            _command.Subcommands.Add(_doneSubcommand);
+            _command.Subcommands.Add(_todoSubcommand);
+            _command.Subcommands.Add(_inProgressSubcommand);
         }
+
         public void Handle(ParseResult parseResult)
         {
-
-
-
-
-
-            Console.WriteLine("The 'list' command does not require any arguments");
-            Execute(_path);
-
-
-
-
-
+            Execute();
         }
 
         public void HandleDone(ParseResult parseResult)
         {
             Console.WriteLine("Listing completed tasks:");
-            model = LoadTasks(_path);
-            foreach (var task in model.Tasks)
-            {
-                if (task.status == TaskModel.Status.done)
-                {
-                    Console.WriteLine($"ID: {task.id}, Description: {task.description}, Status: {task.status}, Created At: {task.createdAt}, Updated At: {task.updatedAt}");
-                }
-            }
+             _repository.PrintTasksByStatus(TaskModel.Status.done);
         }
 
-        public void HandleTodo(ParseResult parseResult)
+        public  void HandleTodo(ParseResult parseResult)
         {
             Console.WriteLine("Listing tasks that are yet to be done:");
-            model = LoadTasks(_path);
-            foreach (var task in model.Tasks)
-            {
-                if (task.status == TaskModel.Status.todo)
-                {
-                    Console.WriteLine($"ID: {task.id}, Description: {task.description}, Status: {task.status}, Created At: {task.createdAt}, Updated At: {task.updatedAt}");
-                }
-            }
+            _repository.PrintTasksByStatus(TaskModel.Status.todo);
         }
+
         public void HandleInProgress(ParseResult parseResult)
         {
             Console.WriteLine("Listing tasks that are in progress:");
-            model = LoadTasks(_path);
+            _repository.PrintTasksByStatus(TaskModel.Status.inProgress);
+        }
+
+        public void Execute()
+        {
+            AppDataJsonModel model = _repository.GetAllTasks();
+            if (model.Tasks.Count == 0)
+            {
+                Console.WriteLine("Tasks list: (empty)");
+                return;
+            }
+
+            Console.WriteLine("Tasks list:");
             foreach (var task in model.Tasks)
             {
-                if (task.status == TaskModel.Status.inProgress)
-                {
-                    Console.WriteLine($"ID: {task.id}, Description: {task.description}, Status: {task.status}, Created At: {task.createdAt}, Updated At: {task.updatedAt}");
-                }
+                _repository.PrintTask(task);
             }
         }
-        public void Execute(string path)
-        {
-
-            model = LoadTasks(path);
-            Console.WriteLine($"Tasks list: ");
-
-            foreach (var task in model.Tasks)
-            {
-                Console.WriteLine($"ID: {task.id}, Description: {task.description}, Status: {task.status}, Created At: {task.createdAt}, Updated At: {task.updatedAt}");
-            }
-        }
-        private AppDataJsonModel? LoadTasks(string path)
-        {
-            string json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<AppDataJsonModel>(json);
-        }
-
     }
 }
-
-

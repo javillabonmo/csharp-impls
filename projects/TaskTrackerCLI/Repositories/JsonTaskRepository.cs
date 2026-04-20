@@ -1,4 +1,6 @@
 ﻿
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using TaskTrackerCLI.Models;
 using TaskTrackerCLI.Repositories.Interfaces;
 
@@ -7,18 +9,18 @@ namespace TaskTrackerCLI.Repositories
     public class JsonTaskRepository : ITaskRepository
     {
         private readonly JsonDataSource _context;
-        public string filePath { get; }
+        public string FilePath { get; }
 
         public JsonTaskRepository(string filePath)
         {
-            this.filePath = filePath;
+            this.FilePath = filePath;
             _context = new JsonDataSource(filePath);
             
         }
 
-        public async Task<AppDataJsonModel> GetAllTasks()
+        public AppDataJsonModel GetAllTasks()
         {
-            AppDataJsonModel? model = await _context.LoadTasks();
+            AppDataJsonModel? model = _context.jsonModel;
             return model ?? throw new Exception("Error: the task path doesnt exist.");
         }
 
@@ -27,7 +29,29 @@ namespace TaskTrackerCLI.Repositories
             await _context.SaveTasks(model);
         }
 
-       
+        public async Task RemoveTask(int taskId)
+        {
+           _context.jsonModel.Tasks.RemoveAll(t => t.id == taskId);
+           await _context.SaveTasks(_context.jsonModel);
+        }
 
+        public void PrintTasksByStatus(TaskModel.Status status)
+        {
+            var filteredTasks = _context.jsonModel.Tasks.Where(t => t.status == status).ToList();
+            foreach (var task in filteredTasks)
+            {
+                PrintTask(task);
+            }
+
+            if (filteredTasks.Count == 0)
+            {
+                Console.WriteLine($"No tasks with status '{status}' found.");
+            }
+        }
+
+        public void PrintTask(TaskModel task)
+        {
+            Console.WriteLine(JsonSerializer.Serialize(task, new JsonSerializerOptions { WriteIndented = true }));
+        }
     }
 }
