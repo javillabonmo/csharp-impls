@@ -31,13 +31,13 @@ namespace TaskTrackerCLI.Repositories
 
         public async Task RemoveTask(int taskId)
         {
-           _context.jsonModel.Tasks.RemoveAll(t => t.id == taskId);
+           _context.jsonModel.Tasks.RemoveAll(t => t.Id == taskId);
            await _context.SaveTasks(_context.jsonModel);
         }
 
-        public void PrintTasksByStatus(TaskModel.Status status)
+        public void PrintTasksByStatus(Models.TaskStatus status)
         {
-            var filteredTasks = _context.jsonModel.Tasks.Where(t => t.status == status).ToList();
+            var filteredTasks = _context.jsonModel.Tasks.Where(t => t.Status == status).ToList();
             foreach (var task in filteredTasks)
             {
                 PrintTask(task);
@@ -49,7 +49,7 @@ namespace TaskTrackerCLI.Repositories
             }
         }
 
-        public void PrintTask(TaskModel task)
+        public void PrintTask(TaskItem task)
         {
             Console.WriteLine(JsonSerializer.Serialize(task, new JsonSerializerOptions { WriteIndented = true }));
         }

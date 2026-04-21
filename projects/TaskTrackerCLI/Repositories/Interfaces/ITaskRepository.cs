@@ -10,7 +10,7 @@ namespace TaskTrackerCLI.Repositories.Interfaces
 
         public Task RemoveTask(int taskId);
 
-        public void PrintTasksByStatus(TaskModel.Status status);
-        public void PrintTask(TaskModel task);
+        public void PrintTasksByStatus(Models.TaskStatus status);
+        public void PrintTask(TaskItem task);
     }
 }

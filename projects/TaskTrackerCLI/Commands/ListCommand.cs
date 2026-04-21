@@ -1,5 +1,4 @@
 using System.CommandLine;
-
 using TaskTrackerCLI.Models;
 using TaskTrackerCLI.Repositories.Interfaces;
 
@@ -44,19 +43,19 @@ namespace TaskTrackerCLI.Commands
         public void HandleDone(ParseResult parseResult)
         {
             Console.WriteLine("Listing completed tasks:");
-             _repository.PrintTasksByStatus(TaskModel.Status.done);
+            _repository.PrintTasksByStatus(Models.TaskStatus.Done);
         }
 
-        public  void HandleTodo(ParseResult parseResult)
+        public void HandleTodo(ParseResult parseResult)
         {
             Console.WriteLine("Listing tasks that are yet to be done:");
-            _repository.PrintTasksByStatus(TaskModel.Status.todo);
+            _repository.PrintTasksByStatus(Models.TaskStatus.Todo);
         }
 
         public void HandleInProgress(ParseResult parseResult)
         {
             Console.WriteLine("Listing tasks that are in progress:");
-            _repository.PrintTasksByStatus(TaskModel.Status.inProgress);
+            _repository.PrintTasksByStatus(Models.TaskStatus.InProgress);
         }
 
         public void Execute()
