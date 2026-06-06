@@ -1,6 +1,6 @@
 ﻿namespace Program
 {
-    internal class Program
+    internal class DiagonalDifference
     {
         static void Main(string[] args)
         {

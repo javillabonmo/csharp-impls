@@ -2,7 +2,7 @@
 
 namespace unidimensional
 {
-    internal class Program
+    internal class UnidimensionalArray
     {
         static void Main(string[] args)
         {
@@ -30,11 +30,11 @@ namespace unidimensional
 
             string[] elements = { "Opel", "Citroen" };
 
-            Program.InsertElement(4, elements[0], carNames, ref i);
-            Program.InsertElement(1, elements[1], carNames, ref i);
+            UnidimensionalArray.InsertElement(4, elements[0], carNames, ref i);
+            UnidimensionalArray.InsertElement(1, elements[1], carNames, ref i);
 
-            Program.DeleteElement(3, carNames, ref i);
-            Program.DeleteElement(2, carNames, ref i);
+            UnidimensionalArray.DeleteElement(3, carNames, ref i);
+            UnidimensionalArray.DeleteElement(2, carNames, ref i);
 
 
             foreach (string item in carNames)
