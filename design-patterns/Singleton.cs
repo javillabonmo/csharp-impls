@@ -16,12 +16,13 @@
     }
     class Singleton
     {
-        private Singleton() {}
+        private Singleton() { }
         private static Singleton _instance;
 
         public static Singleton GetInstance(string value)
         {
-            if (_instance == null) {
+            if (_instance == null)
+            {
                 _instance = new Singleton();
                 _instance.Value = value;
                 return _instance;
@@ -29,6 +30,6 @@
             return _instance;
         }
         public string Value { get; set; }
-        
+
     }
 }
