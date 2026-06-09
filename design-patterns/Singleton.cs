@@ -14,10 +14,10 @@
         }
 
     }
-    class Singleton
+    internal sealed class Singleton
     {
         private Singleton() { }
-        private static Singleton _instance;
+        private static Singleton? _instance;
 
         public static Singleton GetInstance(string value)
         {
@@ -25,11 +25,11 @@
             {
                 _instance = new Singleton();
                 _instance.Value = value;
-                return _instance;
+            
             }
             return _instance;
         }
-        public string Value { get; set; }
+        public string? Value { get; set; }
 
     }
 }
