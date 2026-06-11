@@ -1,0 +1,93 @@
+:root {
+    /* ── PALETTE (Refined Purple Corporate) ── */
+    --bg-page: #f5f3ff;
+
+    --pink-hot: #7c3aed;       /* primary purple */
+    --pink-mid: #c4b5fd;
+    --pink-soft: #ede9fe;
+    --pink-pale: #f5f3ff;
+    --pink-pastel: #faf9ff;
+
+    --lilac: #ddd6fe;
+    --lilac-dark: #5b21b6;
+    --lilac-pale: #f4f3ff;
+
+    --peach: #fef3c7;
+    --cream: #f9fafb;
+
+    --mint: #eef2ff;
+    --mint-deep: #a5b4fc;
+
+    --gold: #fde68a;
+
+    --white: #ffffff;
+    --black: #0f172a;
+
+    --star-1: #ffffff;
+    --star-2: #e5e7eb;
+
+    /* ── TEXT ── */
+    --text-dark: #0f172a;
+    --text-mid: #334155;
+    --text-soft: #64748b;
+
+    --text-accent: #6d28d9;
+    --text-accent-hot: #5b21b6;
+    --text-accent-deep: #4c1d95;
+
+    --text-title: #0f172a;
+
+    --color-marquee: #5b21b6;
+    --color-btn88: #6d28d9;
+
+    /* ── GLASS & OVERLAYS ── */
+    --overlay-bg: rgba(15, 23, 42, 0.35);
+
+    --glass-bg: rgba(255, 255, 255, 0.78);
+    --glass-bg-solid: rgba(255, 255, 255, 0.96);
+    --glass-bg-lite: rgba(255, 255, 255, 0.88);
+
+    --glass-bg-card: rgba(255, 255, 255, 0.95);
+
+    --glass-bg-tag: rgba(124, 58, 237, 0.08);
+    --glass-bg-tag-hover: rgba(124, 58, 237, 0.15);
+
+    --glass-bg-quote: rgba(241, 245, 249, 0.6);
+
+    --glass-bg-shrine: rgba(255, 255, 255, 0.6);
+    --glass-bg-shrine-hover: rgba(241, 245, 249, 0.8);
+
+    /* ── BORDERS & SHADOWS ── */
+    --border-light: rgba(148, 163, 184, 0.25);
+    --border-medium: rgba(100, 116, 139, 0.35);
+
+    --shadow-lilac: rgba(91, 33, 182, 0.12);
+    --shadow-pink: rgba(124, 58, 237, 0.15);
+    --shadow-pink-soft: rgba(15, 23, 42, 0.05);
+    --shadow-pink-mid: rgba(15, 23, 42, 0.12);
+
+    --glow-pink: rgba(124, 58, 237, 0.25);
+    --inset-pink: rgba(255, 255, 255, 0.3);
+
+    /* ── TEXT SHADOWS ── */
+    --t-shadow-light: 0 1px 0 rgba(255, 255, 255, 0.9);
+    --t-shadow-white: 1px 1px 0 rgba(255, 255, 255, 1);
+    --t-shadow-pixel: 1px 1px 0 rgba(255, 255, 255, 1);
+    --t-shadow-deep: 0 1px 2px rgba(0, 0, 0, 0.15);
+
+    /* ── FONTS ── */
+    --font-pixel: 'Roboto', monospace;
+    --font-monospace: monospace;
+    --font-body: 'Nunito', sans-serif;
+
+    /* ── GRADIENTS ── */
+    --grad-marquee: linear-gradient(90deg, #ffffff, #ede9fe, #f5f3ff, #ffffff);
+    --grad-title: linear-gradient(90deg, #ddd6fe, #a78bfa, #ddd6fe);
+
+    /* ── BORDER UTILS ── */
+    --border-pink: 2px solid var(--pink-hot);
+    --border-lilac: 2px solid var(--lilac);
+    --border-dashed: 2px dashed var(--pink-mid);
+
+    /* ── Assets ── */
+}
