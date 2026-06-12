@@ -1,8 +1,19 @@
-namespace PersonalBlog.Models;
+using System.ComponentModel.DataAnnotations;
+using PersonalBlog.Models.Common;
 
-public class Article
+namespace PersonalBlog.Models
 {
-    public string Title {get; set; }
-    public DateTime LastModifiedAt {get;set;}
-    public string Content {get;set;}
+    public class Article : AuditableEntityBase
+    {
+        [Key]
+        public int ArticleId {get;set;}
+        [Required]
+        [Display(Name = "Titulo")]
+        [MaxLength(100)]
+        public required string Title {get; set; }
+        [Display(Name = "Contenido")]
+        [MaxLength(5000)]
+        public string? Content {get;set;}
+    }
 }
+
