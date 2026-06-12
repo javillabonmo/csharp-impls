@@ -2,11 +2,13 @@
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             TestSingleton("val1");
             TestSingleton("val2");
+
         }
+
         public static void TestSingleton(string value)
         {
             Singleton singleton = Singleton.GetInstance(value);
@@ -21,12 +23,13 @@
 
         public static Singleton GetInstance(string value)
         {
-            if (_instance == null)
+            //si la instancia es null asigna el objeto de la derecha
+            _instance ??= new Singleton()
             {
-                _instance = new Singleton();
-                _instance.Value = value;
-            
-            }
+                Value = value
+            };
+
+
             return _instance;
         }
         public string? Value { get; set; }
