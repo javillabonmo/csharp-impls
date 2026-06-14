@@ -12,31 +12,33 @@ public class ArticleService : IArticleService
     
     public ArticleService(ApplicationDbContext dbContext)
     {
-        dbContext = _dbContext;
+        _dbContext = dbContext;
     }
     
     public async Task<ArticleResponse> AddArticle(ArticleRequest article)
     {
         ValidationHelper.Validate(article);
         
-        _dbContext.Article.Add(article.ToArticle());
+        var newArticle = article.ToArticle();
+        newArticle.CreatedAt = DateTime.UtcNow;
+        newArticle.LastUpdatedAt = DateTime.UtcNow;
+
+        _dbContext.Article.Add(newArticle);
         await _dbContext.SaveChangesAsync();
-        return article.ToArticle().ToArticleResponse();
+        return newArticle.ToArticleResponse();
     }
 
     public async Task<ArticleResponse> UpdateArticle(ArticleUpdateRequest article)
     {
-        
-        
-        Article? existingArticle = await _dbContext.Article.FirstOrDefaultAsync(a => a.ArticleId == article.ArticleId);
-        if (existingArticle == null)
-        {
-            throw new NullReferenceException($"Article with id {article.ArticleId} not found");
-        }
         ValidationHelper.Validate(article);
-        
+
+        Article? existingArticle = await _dbContext.Article.FirstOrDefaultAsync(a => a.ArticleId == article.ArticleId);
+        if (existingArticle is null)
+            throw new KeyNotFoundException($"Article with id {article.ArticleId} not found");
+
         existingArticle.Title = article.Title;
         existingArticle.Content = article.Content;
+        existingArticle.LastUpdatedAt = DateTime.UtcNow;
 
         await _dbContext.SaveChangesAsync();
 
@@ -46,7 +48,9 @@ public class ArticleService : IArticleService
     public async Task<bool> DeleteArticle(int articleId)
     {
         Article? article = await _dbContext.Article.FirstOrDefaultAsync(a => a.ArticleId == articleId);
-        
+        if (article is null)
+            return false;
+
         _dbContext.Article.Remove(article);
         int deletedRows = await _dbContext.SaveChangesAsync();
         return deletedRows > 0;
@@ -54,12 +58,13 @@ public class ArticleService : IArticleService
 
     public async Task<ArticleResponse> GetArticle(int articleId)
     {
-        if (articleId >= 1)
-        {
-            throw new ArgumentException("Article ID cannot be inferior to 0", nameof(articleId));
-        }
+        if (articleId <= 0)
+            throw new ArgumentException("Article ID must be greater than 0", nameof(articleId));
+
         Article? article = await _dbContext.Article.FirstOrDefaultAsync(a => a.ArticleId == articleId);
-        return article.ToArticleResponse();
+        return article is null
+            ? throw new KeyNotFoundException($"Article with id {articleId} not found")
+            : article.ToArticleResponse();
     }
 
     public async Task<IEnumerable<ArticleResponse>> GetArticles()

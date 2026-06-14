@@ -1,0 +1,52 @@
+@model IEnumerable<ArticleResponse>
+@{
+    ViewData["Title"] = "Panel de Administración";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold" style="color: var(--text-dark);">Panel de Administración</h2>
+        <a asp-controller="Article" asp-action="Create" class="btn-glass">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nuevo Artículo
+        </a>
+    </div>
+
+    <div class="glass-card p-4">
+        <table class="table table-glass mb-0">
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Creado</th>
+                    <th>Actualizado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model is not null && Model.Any())
+                {
+                    @foreach (var article in Model)
+                    {
+                        <tr>
+                            <td class="fw-medium" style="color: var(--text-dark);">@article.Title</td>
+                            <td><span class="badge-date">@article.CreatedAt.ToString("dd MMM yyyy")</span></td>
+                            <td><span class="badge-date">@article.LastUpdatedAt.ToString("dd MMM yyyy")</span></td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a asp-controller="Article" asp-action="Detail" asp-route-id="@article.Id" class="btn-glass-outline btn-sm">Ver</a>
+                                    <a asp-controller="Article" asp-action="Edit" asp-route-id="@article.Id" class="btn-glass-outline btn-sm">Editar</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center py-4" style="color: var(--text-soft);">No hay artículos registrados.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

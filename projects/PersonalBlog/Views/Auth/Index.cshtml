@@ -1,16 +1,52 @@
+@model LoginDTO
 @{
-    Layout = null;
+    ViewData["Title"] = "Iniciar Sesión";
 }
 
-<!DOCTYPE html>
+<div class="container">
+    <div class="row justify-content-center" style="padding-top: 6rem;">
+        <div class="col-md-5 col-lg-4">
+            <div class="glass-card p-5">
+                <h3 class="text-center fw-bold mb-1" style="color: var(--text-dark);">Bienvenido</h3>
+                <p class="text-center mb-4" style="color: var(--text-soft); font-size: 0.95rem;">Inicia sesión para continuar</p>
 
-<html>
-<head>
-    <title>title</title>
-</head>
-<body>
-<div>
-      
+                @if (ViewBag.Errors is not null)
+                {
+                    <div class="alert-glass p-3 mb-4">
+                        <ul class="mb-0 small" style="padding-left: 1.2rem;">
+                            @foreach (var error in ViewBag.Errors)
+                            {
+                                <li>@error</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <form asp-controller="Auth" asp-action="Index" method="post">
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-medium" style="color: var(--text-mid);"></label>
+                        <input asp-for="Email" class="form-control input-glass" placeholder="correo@ejemplo.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-medium" style="color: var(--text-mid);"></label>
+                        <input asp-for="Password" class="form-control input-glass" placeholder="Contraseña" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label" style="color: var(--text-soft);"></label>
+                    </div>
+
+                    <button type="submit" class="btn-glass w-100 text-center py-2">Iniciar Sesión</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
-</body>
-</html>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

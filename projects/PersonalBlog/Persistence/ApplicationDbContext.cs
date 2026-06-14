@@ -19,6 +19,7 @@ public class ApplicationDbContext :  IdentityDbContext<User, Role, Guid>
         modelBuilder.Entity<Article>().Property(p=>p.ArticleId).ValueGeneratedOnAdd();
         modelBuilder.Entity<Article>().Property(p=>p.Title).IsRequired();
         modelBuilder.Entity<Article>().ToTable("Articulos");
+        
     }
 
 }
