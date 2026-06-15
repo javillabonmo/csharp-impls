@@ -1,17 +1,27 @@
+// <copyright file="ArticleDtoTests.cs" company="TBRZCom">
+// Copyright (c) TBRZCom. All rights reserved.
+// </copyright>
+
 using PersonalBlog.Models.DTOs;
 using Xunit;
 
 namespace PersonalBlog.Tests;
 
+/// <summary>
+/// Unit tests for <see cref="ArticleRequest"/>, <see cref="ArticleResponse"/>, and <see cref="ArticleUpdateRequest"/> DTOs.
+/// </summary>
 public class ArticleDtoTests
 {
+    /// <summary>
+    /// Tests that <see cref="ArticleRequest.ToArticle"/> correctly maps all properties.
+    /// </summary>
     [Fact]
     public void ArticleRequest_ToArticle_ShouldMapCorrectly()
     {
         var request = new ArticleRequest
         {
             Title = "Test Title",
-            Content = "Test Content"
+            Content = "Test Content",
         };
 
         var result = request.ToArticle();
@@ -20,13 +30,16 @@ public class ArticleDtoTests
         Assert.Equal(request.Content, result.Content);
     }
 
+    /// <summary>
+    /// Tests that <see cref="ArticleRequest.ToArticle"/> maps correctly when content is null.
+    /// </summary>
     [Fact]
     public void ArticleRequest_ToArticle_WithNullContent_ShouldMapCorrectly()
     {
         var request = new ArticleRequest
         {
             Title = "Test Title",
-            Content = null
+            Content = null,
         };
 
         var result = request.ToArticle();
@@ -35,6 +48,9 @@ public class ArticleDtoTests
         Assert.Null(result.Content);
     }
 
+    /// <summary>
+    /// Tests that <see cref="ArticleResponse.Equals(object?)"/> returns true for articles with the same ID.
+    /// </summary>
     [Fact]
     public void ArticleResponse_Equals_SameId_ShouldReturnTrue()
     {
@@ -46,7 +62,7 @@ public class ArticleDtoTests
             CreatedAt = DateTime.UtcNow,
             CreatedBy = Guid.NewGuid(),
             LastUpdatedAt = DateTime.UtcNow,
-            LastUpdatedBy = Guid.NewGuid()
+            LastUpdatedBy = Guid.NewGuid(),
         };
 
         var response2 = new ArticleResponse
@@ -57,12 +73,15 @@ public class ArticleDtoTests
             CreatedAt = DateTime.UtcNow,
             CreatedBy = Guid.NewGuid(),
             LastUpdatedAt = DateTime.UtcNow,
-            LastUpdatedBy = Guid.NewGuid()
+            LastUpdatedBy = Guid.NewGuid(),
         };
 
         Assert.True(response1.Equals(response2));
     }
 
+    /// <summary>
+    /// Tests that <see cref="ArticleResponse.Equals(object?)"/> returns false for articles with different IDs.
+    /// </summary>
     [Fact]
     public void ArticleResponse_Equals_DifferentId_ShouldReturnFalse()
     {
@@ -74,7 +93,7 @@ public class ArticleDtoTests
             CreatedAt = DateTime.UtcNow,
             CreatedBy = Guid.NewGuid(),
             LastUpdatedAt = DateTime.UtcNow,
-            LastUpdatedBy = Guid.NewGuid()
+            LastUpdatedBy = Guid.NewGuid(),
         };
 
         var response2 = new ArticleResponse
@@ -85,12 +104,15 @@ public class ArticleDtoTests
             CreatedAt = DateTime.UtcNow,
             CreatedBy = Guid.NewGuid(),
             LastUpdatedAt = DateTime.UtcNow,
-            LastUpdatedBy = Guid.NewGuid()
+            LastUpdatedBy = Guid.NewGuid(),
         };
 
         Assert.False(response1.Equals(response2));
     }
 
+    /// <summary>
+    /// Tests that <see cref="ArticleResponse.Equals(object?)"/> returns false when comparing to null.
+    /// </summary>
     [Fact]
     public void ArticleResponse_Equals_NullObject_ShouldReturnFalse()
     {
@@ -102,12 +124,15 @@ public class ArticleDtoTests
             CreatedAt = DateTime.UtcNow,
             CreatedBy = Guid.NewGuid(),
             LastUpdatedAt = DateTime.UtcNow,
-            LastUpdatedBy = Guid.NewGuid()
+            LastUpdatedBy = Guid.NewGuid(),
         };
 
         Assert.False(response.Equals(null));
     }
 
+    /// <summary>
+    /// Tests that <see cref="ArticleResponse.ToString()"/> returns the expected formatted string.
+    /// </summary>
     [Fact]
     public void ArticleResponse_ToString_ShouldReturnFormattedString()
     {
@@ -119,7 +144,7 @@ public class ArticleDtoTests
             CreatedAt = DateTime.UtcNow,
             CreatedBy = Guid.NewGuid(),
             LastUpdatedAt = DateTime.UtcNow,
-            LastUpdatedBy = Guid.NewGuid()
+            LastUpdatedBy = Guid.NewGuid(),
         };
 
         var result = response.ToString();
@@ -129,6 +154,9 @@ public class ArticleDtoTests
         Assert.Contains("Content: Test Content", result);
     }
 
+    /// <summary>
+    /// Tests that <see cref="ArticleResponse.ToUpdateRequest"/> correctly maps all properties.
+    /// </summary>
     [Fact]
     public void ArticleResponse_ToUpdateRequest_ShouldMapCorrectly()
     {
@@ -140,7 +168,7 @@ public class ArticleDtoTests
             CreatedAt = DateTime.UtcNow,
             CreatedBy = Guid.NewGuid(),
             LastUpdatedAt = DateTime.UtcNow,
-            LastUpdatedBy = Guid.NewGuid()
+            LastUpdatedBy = Guid.NewGuid(),
         };
 
         var result = response.ToUpdateRequest();
@@ -150,6 +178,9 @@ public class ArticleDtoTests
         Assert.Equal("Original Content", result.Content);
     }
 
+    /// <summary>
+    /// Tests that <see cref="ArticleUpdateRequest"/> correctly stores the article ID.
+    /// </summary>
     [Fact]
     public void ArticleUpdateRequest_Should_HaveArticleId()
     {
@@ -157,7 +188,7 @@ public class ArticleDtoTests
         {
             ArticleId = 10,
             Title = "Updated Title",
-            Content = "Updated Content"
+            Content = "Updated Content",
         };
 
         Assert.Equal(10, updateRequest.ArticleId);

@@ -12,7 +12,7 @@ _site/
 .cache/
 # Generated API metadata
 _api/
-
+api/
 # PDF output
 pdf/
 

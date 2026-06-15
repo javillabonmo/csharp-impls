@@ -1,3 +1,7 @@
+// <copyright file="ArticleServiceTests.cs" company="TBRZCom">
+// Copyright (c) TBRZCom. All rights reserved.
+// </copyright>
+
 using Moq;
 using PersonalBlog.Models.DTOs;
 using PersonalBlog.Services;
@@ -5,11 +9,17 @@ using Xunit;
 
 namespace PersonalBlog.Tests;
 
+/// <summary>
+/// Unit tests for <see cref="IArticleService"/> using Moq.
+/// </summary>
 public class ArticleServiceTests
 {
     private readonly Mock<IArticleService> _mockService;
     private readonly List<ArticleResponse> _sampleArticles;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ArticleServiceTests"/> class.
+    /// </summary>
     public ArticleServiceTests()
     {
         _mockService = new Mock<IArticleService>();
@@ -25,7 +35,7 @@ public class ArticleServiceTests
                 CreatedAt = DateTime.UtcNow.AddDays(-2),
                 CreatedBy = userId,
                 LastUpdatedAt = DateTime.UtcNow.AddDays(-2),
-                LastUpdatedBy = userId
+                LastUpdatedBy = userId,
             },
             new ArticleResponse
             {
@@ -35,11 +45,14 @@ public class ArticleServiceTests
                 CreatedAt = DateTime.UtcNow.AddDays(-1),
                 CreatedBy = userId,
                 LastUpdatedAt = DateTime.UtcNow.AddDays(-1),
-                LastUpdatedBy = userId
-            }
+                LastUpdatedBy = userId,
+            },
         ];
     }
 
+    /// <summary>
+    /// Tests that <see cref="IArticleService.GetArticles"/> returns all sample articles.
+    /// </summary>
     [Fact]
     public async Task GetArticles_ShouldReturnAllArticles()
     {
@@ -53,6 +66,9 @@ public class ArticleServiceTests
         Assert.Equal(2, result.Count());
     }
 
+    /// <summary>
+    /// Tests that <see cref="IArticleService.GetArticle(int)"/> returns the correct article for an existing ID.
+    /// </summary>
     [Fact]
     public async Task GetArticle_ExistingId_ShouldReturnArticle()
     {
@@ -68,6 +84,9 @@ public class ArticleServiceTests
         Assert.Equal("First Article", result.Title);
     }
 
+    /// <summary>
+    /// Tests that <see cref="IArticleService.GetArticle(int)"/> returns null for a non-existing ID.
+    /// </summary>
     [Fact]
     public async Task GetArticle_NonExistingId_ShouldReturnNull()
     {
@@ -80,13 +99,16 @@ public class ArticleServiceTests
         Assert.Null(result);
     }
 
+    /// <summary>
+    /// Tests that <see cref="IArticleService.AddArticle(ArticleRequest)"/> returns the created article.
+    /// </summary>
     [Fact]
     public async Task AddArticle_ShouldReturnCreatedArticle()
     {
         var newArticle = new ArticleRequest
         {
             Title = "New Article",
-            Content = "New Content"
+            Content = "New Content",
         };
 
         var expectedResponse = new ArticleResponse
@@ -97,7 +119,7 @@ public class ArticleServiceTests
             CreatedAt = DateTime.UtcNow,
             CreatedBy = Guid.NewGuid(),
             LastUpdatedAt = DateTime.UtcNow,
-            LastUpdatedBy = Guid.NewGuid()
+            LastUpdatedBy = Guid.NewGuid(),
         };
 
         _mockService
@@ -112,13 +134,17 @@ public class ArticleServiceTests
         Assert.Equal("New Content", result.Content);
     }
 
+    /// <summary>
+    /// Tests that <see cref="IArticleService.AddArticle(ArticleRequest)"/> throws <see cref="ArgumentException"/>
+    /// when the title is null.
+    /// </summary>
     [Fact]
     public async Task AddArticle_NullTitle_ShouldHandleValidation()
     {
         var invalidArticle = new ArticleRequest
         {
             Title = null!,
-            Content = "Some content"
+            Content = "Some content",
         };
 
         _mockService
@@ -130,6 +156,9 @@ public class ArticleServiceTests
         Assert.Contains("Title", ex.Message);
     }
 
+    /// <summary>
+    /// Tests that <see cref="IArticleService.UpdateArticle(ArticleUpdateRequest)"/> returns the updated article.
+    /// </summary>
     [Fact]
     public async Task UpdateArticle_ShouldReturnUpdatedArticle()
     {
@@ -137,7 +166,7 @@ public class ArticleServiceTests
         {
             ArticleId = 1,
             Title = "Updated Title",
-            Content = "Updated Content"
+            Content = "Updated Content",
         };
 
         var updatedResponse = new ArticleResponse
@@ -148,7 +177,7 @@ public class ArticleServiceTests
             CreatedAt = DateTime.UtcNow.AddDays(-2),
             CreatedBy = Guid.NewGuid(),
             LastUpdatedAt = DateTime.UtcNow,
-            LastUpdatedBy = Guid.NewGuid()
+            LastUpdatedBy = Guid.NewGuid(),
         };
 
         _mockService
@@ -163,6 +192,9 @@ public class ArticleServiceTests
         Assert.Equal("Updated Content", result.Content);
     }
 
+    /// <summary>
+    /// Tests that <see cref="IArticleService.DeleteArticle(int)"/> returns true for an existing article.
+    /// </summary>
     [Fact]
     public async Task DeleteArticle_ExistingId_ShouldReturnTrue()
     {
@@ -175,6 +207,9 @@ public class ArticleServiceTests
         Assert.True(result);
     }
 
+    /// <summary>
+    /// Tests that <see cref="IArticleService.DeleteArticle(int)"/> returns false for a non-existing article.
+    /// </summary>
     [Fact]
     public async Task DeleteArticle_NonExistingId_ShouldReturnFalse()
     {
@@ -187,6 +222,9 @@ public class ArticleServiceTests
         Assert.False(result);
     }
 
+    /// <summary>
+    /// Tests that <see cref="IArticleService.GetArticles"/> returns an empty list when no articles exist.
+    /// </summary>
     [Fact]
     public async Task GetArticles_ShouldReturnEmptyList_WhenNoArticles()
     {
@@ -200,13 +238,16 @@ public class ArticleServiceTests
         Assert.Empty(result);
     }
 
+    /// <summary>
+    /// Tests that <see cref="IArticleService.AddArticle(ArticleRequest)"/> is called exactly once.
+    /// </summary>
     [Fact]
     public async Task AddArticle_ShouldBeCalledExactlyOnce()
     {
         var article = new ArticleRequest
         {
             Title = "Test",
-            Content = "Test Content"
+            Content = "Test Content",
         };
 
         _mockService
@@ -219,7 +260,7 @@ public class ArticleServiceTests
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = Guid.NewGuid(),
                 LastUpdatedAt = DateTime.UtcNow,
-                LastUpdatedBy = Guid.NewGuid()
+                LastUpdatedBy = Guid.NewGuid(),
             });
 
         await _mockService.Object.AddArticle(article);
