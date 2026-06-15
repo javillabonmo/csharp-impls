@@ -5,7 +5,19 @@
 
 # dotenv files
 .env
+# DocFX output
+_site/
 
+# DocFX cache
+.cache/
+# Generated API metadata
+_api/
+
+# PDF output
+pdf/
+
+# Playwright / Chromium cache local
+.playwright/
 # User-specific files
 *.rsuser
 *.suo
