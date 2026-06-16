@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using PersonalBlog.Models;
 using PersonalBlog.Models.DTOs;
 using PersonalBlog.Persistence;
+using System.Security.Claims;
 
 namespace PersonalBlog.Services;
 
@@ -15,14 +16,17 @@ namespace PersonalBlog.Services;
 public class ArticleService : IArticleService
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ArticleService"/> class.
     /// </summary>
     /// <param name="dbContext">The database context.</param>
-    public ArticleService(ApplicationDbContext dbContext)
+    /// <param name="httpContextAccessor">The HTTP context accessor.</param>
+    public ArticleService(ApplicationDbContext dbContext, IHttpContextAccessor httpContextAccessor)
     {
         this._dbContext = dbContext;
+        this._httpContextAccessor = httpContextAccessor;
     }
 
     /// <summary>
@@ -37,6 +41,14 @@ public class ArticleService : IArticleService
         var newArticle = article.ToArticle();
         newArticle.CreatedAt = DateTime.UtcNow;
         newArticle.LastUpdatedAt = DateTime.UtcNow;
+
+        //this shit looks sus
+        var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+
+        newArticle.CreatedBy = Guid.Parse(userId ?? Guid.Empty.ToString());
+        newArticle.LastUpdatedBy = Guid.Parse(userId ?? Guid.Empty.ToString());
+
 
         this._dbContext.Article.Add(newArticle);
         await this._dbContext.SaveChangesAsync();

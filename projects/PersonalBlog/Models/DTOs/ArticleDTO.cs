@@ -21,6 +21,7 @@ public class ArticleRequest
     /// Gets or sets the content.
     /// </summary>
     [DataType(DataType.Text)]
+    [MaxLength(5000, ErrorMessage = "*El contenido no puede exceder los 5000 caracteres")]
     public string? Content { get; set; }
 
     /// <summary>

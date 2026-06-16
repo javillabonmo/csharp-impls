@@ -64,6 +64,7 @@ public class ArticleController : Controller
     [Authorize(Roles = "Admin")]
     [Route("[action]")]
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ArticleRequest request)
     {
         if (!ModelState.IsValid)
@@ -112,6 +113,7 @@ public class ArticleController : Controller
     [Authorize(Roles = "Admin")]
     [Route("[action]")]
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(ArticleUpdateRequest request)
     {
         if (!ModelState.IsValid)

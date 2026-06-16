@@ -4,6 +4,7 @@
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using PersonalBlog.Models;
 using PersonalBlog.Models.Auth;
 using PersonalBlog.Models.DTOs;
@@ -35,6 +36,7 @@ public class AuthController : Controller
     /// <returns>The login view.</returns>
     [HttpGet]
     [Route("/login")]
+    [EnableRateLimiting("Login")]
     public IActionResult Index()
     {
         // Si ya está autenticado, redirigir al inicio
@@ -52,6 +54,7 @@ public class AuthController : Controller
     /// <param name="dto">The login data transfer object.</param>
     /// <returns>A redirect to the appropriate home page, or the login view on failure.</returns>
     [HttpPost]
+    [ValidateAntiForgeryToken]
     [Route("/login")]
     public async Task<IActionResult> Index(LoginDTO dto)
     {
@@ -73,7 +76,7 @@ public class AuthController : Controller
             user,
             dto.Password,
             isPersistent: dto.RememberMe,
-            lockoutOnFailure: false);
+            lockoutOnFailure: true);
 
         if (!result.Succeeded)
         {
@@ -97,6 +100,7 @@ public class AuthController : Controller
     /// <returns>A redirect to the home page.</returns>
     [HttpPost]
     [Route("/logout")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
         await this._signInManager.SignOutAsync();
