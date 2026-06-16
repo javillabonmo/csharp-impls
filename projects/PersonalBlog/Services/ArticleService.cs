@@ -30,6 +30,16 @@ public class ArticleService : IArticleService
     }
 
     /// <summary>
+    /// Gets the current user's ID from the HTTP context, or <see cref="Guid.Empty"/> if not authenticated.
+    /// </summary>
+    /// <returns>The current user's ID.</returns>
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        return userIdClaim is not null ? Guid.Parse(userIdClaim) : Guid.Empty;
+    }
+
+    /// <summary>
     /// Adds a new article.
     /// </summary>
     /// <param name="article">The article request data.</param>
@@ -39,16 +49,12 @@ public class ArticleService : IArticleService
         ValidationHelper.Validate(article);
 
         var newArticle = article.ToArticle();
+        var userId = this.GetCurrentUserId();
+
         newArticle.CreatedAt = DateTime.UtcNow;
+        newArticle.CreatedBy = userId;
         newArticle.LastUpdatedAt = DateTime.UtcNow;
-
-        //this shit looks sus
-        var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-
-
-        newArticle.CreatedBy = Guid.Parse(userId ?? Guid.Empty.ToString());
-        newArticle.LastUpdatedBy = Guid.Parse(userId ?? Guid.Empty.ToString());
-
+        newArticle.LastUpdatedBy = userId;
 
         this._dbContext.Article.Add(newArticle);
         await this._dbContext.SaveChangesAsync();
@@ -73,6 +79,7 @@ public class ArticleService : IArticleService
         existingArticle.Title = article.Title;
         existingArticle.Content = article.Content;
         existingArticle.LastUpdatedAt = DateTime.UtcNow;
+        existingArticle.LastUpdatedBy = this.GetCurrentUserId();
 
         await this._dbContext.SaveChangesAsync();
 

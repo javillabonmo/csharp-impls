@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -6,7 +6,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);CS1591;SA1101;SA1309;SA1633;CS7022</NoWarn>
-    </PropertyGroup>
+      <UserSecretsId>93cedce1-1004-452b-b935-730dd70f7b0d</UserSecretsId>
+  </PropertyGroup>
 
     <ItemGroup>
       <Content Remove="stylecop.json" />

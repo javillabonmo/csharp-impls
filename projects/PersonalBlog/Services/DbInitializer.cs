@@ -28,6 +28,7 @@ public static class DbInitializer
         var context = services.GetRequiredService<ApplicationDbContext>();
         var userManager = services.GetRequiredService<UserManager<User>>();
         var roleManager = services.GetRequiredService<RoleManager<Role>>();
+        var config = services.GetRequiredService<IConfiguration>();
 
         // Aplicar migraciones pendientes
         await context.Database.MigrateAsync();
@@ -43,8 +44,8 @@ public static class DbInitializer
         }
 
         // ───────────── 2. Crear usuario admin por defecto ─────────────
-        const string adminEmail = "admin@personalblog.com";
-        const string adminPassword = "Admin123!";
+        var adminEmail = config["Admin:Email"];
+        var adminPassword = config["Admin:Password"];
 
         var adminUser = await userManager.FindByEmailAsync(adminEmail);
         if (adminUser is null)
