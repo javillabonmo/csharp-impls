@@ -1,4 +1,3 @@
-version: '0.1'
 services:
   postgres:
     container_name: postgres
@@ -11,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     networks:
       - app_network
     healthcheck:
@@ -31,6 +30,8 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${PG_DB_NAME};Username=${PG_USER};Password=${PG_PASSWORD}
       - ASPNETCORE_URLS=http://+:8080
+      - Admin__Email=${NET_ADMIN_EMAIL}
+      - Admin__Password=${NET_PASSWORD}
     depends_on:
       postgres:
         condition: service_healthy
