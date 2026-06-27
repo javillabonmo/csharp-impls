@@ -1,5 +1,10 @@
+using System.Threading.RateLimiting;
+
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
+
 using StackExchange.Redis;
+
 using WeatherAPI.Models;
 using WeatherAPI.Services;
 
@@ -15,6 +20,18 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     configuration.ConnectTimeout = 5000;
 
     return ConnectionMultiplexer.Connect(configuration);
+});
+
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("fixed", opt =>
+    {
+        opt.PermitLimit = 100;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
 });
 
 
@@ -54,6 +71,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseRateLimiter();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
