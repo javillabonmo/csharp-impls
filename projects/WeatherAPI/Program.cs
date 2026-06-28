@@ -3,12 +3,23 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 
+using Scalar.AspNetCore;
+
 using StackExchange.Redis;
 
 using WeatherAPI.Models;
 using WeatherAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()).AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
@@ -36,11 +47,22 @@ builder.Services.AddRateLimiter(options =>
 
 
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        document.Info = new()
+        {
+            Title = "WeatherAPI",
+            Version = "v1",
+            Description = "Weather data API with Redis caching, rate limiting, and external API integration."
+        };
+        return Task.CompletedTask;
+    });
+});
 
 builder.Services.Configure<WeatherApiOptions>(
     builder.Configuration.GetSection(WeatherApiOptions.SectionName));
-
 
 
 
@@ -69,6 +91,13 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference(options =>
+    {
+        options
+            .WithTitle("WeatherAPI")
+            .WithTheme(ScalarTheme.BluePlanet)
+            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+    });
 }
 
 app.UseRateLimiter();
