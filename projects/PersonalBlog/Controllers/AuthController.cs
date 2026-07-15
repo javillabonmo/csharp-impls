@@ -18,16 +18,22 @@ public class AuthController : Controller
 {
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
+    private readonly ILogger<AuthController> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthController"/> class.
     /// </summary>
     /// <param name="userManager">The user manager.</param>
     /// <param name="signInManager">The sign-in manager.</param>
-    public AuthController(UserManager<User> userManager, SignInManager<User> signInManager)
+    /// <param name="logger">The logger instance.</param>
+    public AuthController(
+        UserManager<User> userManager,
+        SignInManager<User> signInManager,
+        ILogger<AuthController> logger)
     {
         this._userManager = userManager;
         this._signInManager = signInManager;
+        this._logger = logger;
     }
 
     /// <summary>
@@ -67,6 +73,7 @@ public class AuthController : Controller
         var user = await this._userManager.FindByEmailAsync(dto.Email);
         if (user is null)
         {
+            
             ModelState.AddModelError(string.Empty, "Email o contraseña incorrectos.");
             ViewBag.Errors = new List<string> { "Email o contraseña incorrectos." };
             return View(dto);
@@ -80,14 +87,29 @@ public class AuthController : Controller
 
         if (!result.Succeeded)
         {
+            if (result.IsLockedOut)
+            {
+                this._logger.LogWarning(
+                    "Locked out account login attempt for user {Email}",
+                    dto.Email);
+            }
+
             ModelState.AddModelError(string.Empty, "Email o contraseña incorrectos.");
             ViewBag.Errors = new List<string> { "Email o contraseña incorrectos." };
             return View(dto);
         }
 
+        
+        
+
         // Redirigir según el rol
         if (await this._userManager.IsInRoleAsync(user, UserTypeOptions.Admin.ToString()))
         {
+            this._logger.LogInformation(
+            "Successful login for user {Email} as {Role}",
+            dto.Email,
+            UserTypeOptions.Admin.ToString());
+
             return RedirectToAction("Index", "Admin", new { area = "Admin" });
         }
 
@@ -103,6 +125,7 @@ public class AuthController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
+        var userName = User.Identity?.Name ?? "unknown";
         await this._signInManager.SignOutAsync();
         return RedirectToAction("Index", "Home");
     }

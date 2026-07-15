@@ -6,12 +6,24 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using PersonalBlog.Middleware;
 using PersonalBlog.Models.Auth;
 using PersonalBlog.Persistence;
 using PersonalBlog.Services;
+using Serilog;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+
+builder.Host.UseSerilog(
+    (HostBuilderContext HttpBuilder, IServiceProvider serviceProvider, LoggerConfiguration configuration) =>
+    {
+        configuration
+            .ReadFrom.Configuration(builder.Configuration)
+            .ReadFrom.Services(serviceProvider);
+    });
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -64,13 +76,19 @@ builder.Services.AddRateLimiter(options =>
 });
 
 var app = builder.Build();
+app.UseSerilogRequestLogging();
 
 // ───────────── Seed de Roles e usuario Admin) ─────────────
 await DbInitializer.SeedAsync(app);
 
 // Configure the HTTP request pipeline.
+
+// Custom exception handling middleware logs exactly once at the boundary.
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 if (!app.Environment.IsDevelopment())
 {
+    // Fallback in case the custom middleware also encounters an issue.
     app.UseExceptionHandler("/Home/Error");
 
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.

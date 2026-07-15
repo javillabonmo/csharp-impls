@@ -3,6 +3,8 @@
 // </copyright>
 
 using Microsoft.EntityFrameworkCore;
+using PersonalBlog;
+using PersonalBlog.Exceptions;
 using PersonalBlog.Models;
 using PersonalBlog.Models.DTOs;
 using PersonalBlog.Persistence;
@@ -73,7 +75,9 @@ public class ArticleService : IArticleService
         Article? existingArticle = await this._dbContext.Article.FirstOrDefaultAsync(a => a.ArticleId == article.ArticleId);
         if (existingArticle is null)
         {
-            throw new KeyNotFoundException($"Article with id {article.ArticleId} not found");
+            throw new KeyNotFoundException($"Article with id {article.ArticleId} not found")
+                .AddData("ArticleId", article.ArticleId)
+                .AddData("Operation", "UpdateArticle");
         }
 
         existingArticle.Title = article.Title;
@@ -113,12 +117,16 @@ public class ArticleService : IArticleService
     {
         if (articleId <= 0)
         {
-            throw new ArgumentException("Article ID must be greater than 0", nameof(articleId));
+            throw new ArgumentException("Article ID must be greater than 0", nameof(articleId))
+                .AddData("ArticleId", articleId)
+                .AddData("Operation", "GetArticle");
         }
 
         Article? article = await this._dbContext.Article.FirstOrDefaultAsync(a => a.ArticleId == articleId);
         return article is null
             ? throw new KeyNotFoundException($"Article with id {articleId} not found")
+                .AddData("ArticleId", articleId)
+                .AddData("Operation", "GetArticle")
             : article.ToArticleResponse();
     }
 

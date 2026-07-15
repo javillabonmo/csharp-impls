@@ -13,28 +13,23 @@ public class WeatherController : ControllerBase
 {
     private readonly IWeatherApiClient _weatherClient;
     private readonly RedisCacheService _cache;
+    private readonly ILogger<WeatherController> _logger;
     private const string CacheKeyPrefix = "weather:";
 
     public WeatherController(
         IWeatherApiClient weatherClient,
-        RedisCacheService cache)
+        RedisCacheService cache,
+        ILogger<WeatherController> logger)
     {
        _weatherClient = weatherClient;
        _cache = cache;
+       _logger = logger;
     }
 
 
     [HttpGet]
     public async Task<IActionResult> HealthCheck([FromQuery] string location = "Bogota", [FromQuery] bool reloadCache = false)
     {
-        // En este caso lo que se desea cachear es la "locacion",
-        // sea por " addresses, partial addresses or latitude,longitude values"
-
-        // que se esta haciendo? antes de hacer la llamada a la API externa
-        // se verifica si el resultado ya está en cache "cache-hit"
-        // Si está en cache, se devuelve el resultado almacenado.
-        // Si no está en caché, se realiza la llamada a la API externa, se almacena el resultado en caché y luego se devuelve.
-
         var cacheKey = $"{CacheKeyPrefix}{location}";
 
         if (reloadCache)
@@ -49,11 +44,23 @@ public class WeatherController : ControllerBase
             return Ok(new { Status = "Healthy", Source = "Cache", Result = cached });
         }
 
-        var result = await _weatherClient.GetWeatherAsync(location);
-        if (result is not null)
+        WeatherResponse? result = null;
+
+        try
         {
-            await _cache.SetAsync(cacheKey, result, TimeSpan.FromSeconds(30));
+            result = await _weatherClient.GetWeatherAsync(location);
+            if (result is not null)
+            {
+                await _cache.SetAsync(cacheKey, result, TimeSpan.FromSeconds(30));
+            }
+
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching weather data");
+            return StatusCode(500, new { Status = "Unhealthy", Error = ex.Message });
+        }
+
 
         return Ok(new { Status = "Healthy", Source = "Api", Result = result });  
     }

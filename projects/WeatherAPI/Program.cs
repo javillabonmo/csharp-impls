@@ -5,12 +5,20 @@ using Microsoft.Extensions.Options;
 
 using Scalar.AspNetCore;
 
+using Serilog;
+
 using StackExchange.Redis;
 
 using WeatherAPI.Models;
 using WeatherAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog(
+    (HostBuilderContext HttpBuilder, IServiceProvider serviceProvider,LoggerConfiguration configuration) =>
+{
+    configuration.ReadFrom.Configuration(builder.Configuration).ReadFrom.Services(serviceProvider);
+});
 
 builder.Services.AddCors(options =>
 {
@@ -87,6 +95,8 @@ builder.Services
 builder.Services.AddScoped<RedisCacheService>();
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 if (app.Environment.IsDevelopment())
 {

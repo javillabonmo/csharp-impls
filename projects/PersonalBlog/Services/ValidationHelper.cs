@@ -2,6 +2,7 @@
 // Copyright (c) TBRZCom. All rights reserved.
 // </copyright>
 
+using PersonalBlog.Exceptions;
 using System.ComponentModel.DataAnnotations;
 
 namespace PersonalBlog.Services;
@@ -22,11 +23,22 @@ public class ValidationHelper
         ValidationContext validationContext = new ValidationContext(obj!);
         List<ValidationResult> validationResults = new List<ValidationResult>();
 
-        bool isValid = Validator.TryValidateObject(obj, validationContext, validationResults, true); // false para validar solo las propiedades requeridas, true para validar todas las propiedades incluso la de las clases que se llaman
+        bool isValid = Validator.TryValidateObject(obj, validationContext, validationResults, true);
 
         if (!isValid)
         {
-            throw new ArgumentException(validationResults.FirstOrDefault()?.ErrorMessage);
+            var firstError = validationResults.FirstOrDefault();
+            var message = firstError?.ErrorMessage ?? "Validation failed";
+
+            var ex = new ArgumentException(message)
+                .AddData("ValidationErrors", string.Join("; ", validationResults.Select(r => r.ErrorMessage)));
+
+            if (firstError?.MemberNames is { } members)
+            {
+                ex.AddData("ValidationMembers", string.Join(", ", members));
+            }
+
+            throw ex;
         }
     }
 }

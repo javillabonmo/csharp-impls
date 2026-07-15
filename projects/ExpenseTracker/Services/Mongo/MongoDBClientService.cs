@@ -1,34 +1,40 @@
-﻿using MongoDB.Driver;
+﻿using ExpenseTracker.Exceptions;
+using MongoDB.Driver;
 
-namespace ExpenseTracker.Services.Mongo
+namespace ExpenseTracker.Services.Mongo;
+
+public class MongoDBClientService : IMongoDBClientService
 {
-    public class MongoDBClientService : IMongoDBClientService
+    private readonly IMongoDatabase _database;
+    private readonly ILogger<MongoDBClientService> _logger;
+
+    public MongoDBClientService(IMongoClient mongoClient, ILogger<MongoDBClientService> logger)
     {
-        private readonly IMongoDatabase _database;
+        _database = mongoClient.GetDatabase("ExpenseTracker");
+        _logger = logger;
+    }
 
-        public MongoDBClientService(IMongoClient mongoClient)
+    public IMongoCollection<T> GetCollection<T>(string collectionName) where T : class
+    {
+        return _database.GetCollection<T>(collectionName);
+    }
+
+    public string HealthCheck()
+    {
+        try
         {
-            _database = mongoClient.GetDatabase("ExpenseTracker");
+            _database.RunCommand<MongoDB.Bson.BsonDocument>(new MongoDB.Bson.BsonDocument("ping", 1));
+            _logger.LogDebug("MongoDB ping successful");
+            return "MongoDB is healthy";
         }
-
-        public IMongoCollection<T> GetCollection<T>(string collectionName) where T : class
+        catch (Exception ex)
         {
-            return _database.GetCollection<T>(collectionName);
-        }
+            ex.AddData("Database", "ExpenseTracker");
+            ex.AddData("Operation", "HealthCheck");
 
-        public string HealthCheck()
-        {
-            try
-            {
-                _database.RunCommand<MongoDB.Bson.BsonDocument>(new MongoDB.Bson.BsonDocument("ping", 1));
-                Console.WriteLine("Pinged your deployment. You successfully connected to MongoDB!");
-                return "MongoDB is healthy";
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                return $"MongoDB health check failed: {ex.Message}";
-            }
+            _logger.LogError(ex, "MongoDB health check failed");
+
+            return $"MongoDB health check failed: {ex.Message}";
         }
     }
 }

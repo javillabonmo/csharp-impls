@@ -1,4 +1,5 @@
 
+using ExpenseTracker.Middleware;
 using ExpenseTracker.Models.Auth;
 using ExpenseTracker.Services.ExpenseTracker;
 using ExpenseTracker.Services.JWT;
@@ -85,6 +86,8 @@ namespace ExpenseTracker
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
+
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             if (app.Environment.IsDevelopment())
             {

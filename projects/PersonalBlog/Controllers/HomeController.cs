@@ -16,14 +16,17 @@ namespace PersonalBlog.Controllers;
 public class HomeController : Controller
 {
     private readonly IArticleService _articleService;
+    private readonly ILogger<HomeController> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="HomeController"/> class.
     /// </summary>
     /// <param name="articleService">The article service.</param>
-    public HomeController(IArticleService articleService)
+    /// <param name="logger">The logger instance.</param>
+    public HomeController(IArticleService articleService, ILogger<HomeController> logger)
     {
         this._articleService = articleService;
+        this._logger = logger;
     }
 
     /// <summary>
@@ -56,6 +59,15 @@ public class HomeController : Controller
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        var requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+
+        // If reached via UseExceptionHandler fallback, log any stored exception
+        var exceptionFeature = HttpContext.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+        if (exceptionFeature?.Error is { } ex)
+        {
+            this._logger.LogError(ex, "Fallback exception handler for request {RequestId}", requestId);
+        }
+
+        return View(new ErrorViewModel { RequestId = requestId });
     }
 }
