@@ -11,17 +11,17 @@ namespace SortingAlgorithms
 
         }
 
-        public static List<int> MergeSort(span<int> array)
+        public static List<int> MergeSort(span<int> nums)
         {
-            if (array == null || array.Length < 2)
+            if (nums == null || nums.Length < 2)
             {
                 return new List<int>();
             }
 
-            int mid = array.Length / 2;//casteo implicito, si es impar se redondea hacia abajo
+            int mid = nums.Length / 2;//casteo implicito, si es impar se redondea hacia abajo
 
-            span<int> first = array.Slice(0, mid);
-            span<int> second = array.Slice(mid);
+            span<int> first = nums.Slice(0, mid);
+            span<int> second = nums.Slice(mid);
 
             MergeSort(first);
             MergeSort(second);

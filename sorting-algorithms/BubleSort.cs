@@ -8,19 +8,19 @@ namespace SortingAlgorithms
         //la complejidad es O(n) en el mejor de los casos
         public static void Main(string[] args)
         {
-            int[] numbers = { 5, 3, 8, 4, 2 };
+            int[] numbers = { 5, 3, 8, 4, 2 }; //lengh = 5, en iteraciones usar -1 para no obtener un index out of range exception
             Sort(numbers);
             Console.WriteLine("Sorted: " + string.Join(", ", numbers));
         }
 
-        public static void Sort(int[] array)
+        public static void Sort(int[] nums)
         {
-            if (array == null || array.Length < 2)
+            if (nums == null || nums.Length < 2)
             {
                 return;
             }
 
-            int end = array.Length;
+            int end = nums.Length;
             bool swapped;
 
             while (end > 1)
@@ -28,12 +28,10 @@ namespace SortingAlgorithms
                 swapped = false;
                 for (int i = 0; i < end - 1; i++)
                 {
-                    if (array[i] > array[i + 1])
+                    if (nums[i] > nums[i + 1])
                     {
 
-                        int temp = array[i];
-                        array[i] = array[i + 1];
-                        array[i + 1] = temp;
+                        (nums[i], nums[i + 1]) = (nums[i + 1], nums[i]);
                         swapped = true;
                     }
                 }
