@@ -1,5 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
 using Microsoft.Extensions.Options;
 
 using WeatherAPI.Exceptions;
@@ -47,5 +45,5 @@ public sealed class WeatherApiClient : IWeatherApiClient
             throw ex.AddData("Location", location);
         }
         }
-       }
 }
+
