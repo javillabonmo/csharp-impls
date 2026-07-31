@@ -1,0 +1,13 @@
+branch="$(git symbolic-ref --short HEAD)"
+
+case "$branch" in
+  main|dev)
+    echo "=========================================================="
+    echo "  Push directo a '$branch' NO permitido."
+    echo "  Crea una rama 'feature/*' o 'hotfix/*' y abre un PR."
+    echo "=========================================================="
+    exit 1
+    ;;
+esac
+
+exit 0
