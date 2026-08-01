@@ -1,7 +1,5 @@
 namespace Factory
 {
-
-
     public abstract class Dialog
     {
         public abstract IButton CreateButton();
