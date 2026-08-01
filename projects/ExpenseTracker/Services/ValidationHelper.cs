@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using ExpenseTracker.Exceptions;
 
 namespace ExpenseTracker.Services
 {
@@ -15,11 +16,15 @@ namespace ExpenseTracker.Services
             ValidationContext validationContext = new ValidationContext(obj!);
             List<ValidationResult> validationResults = new List<ValidationResult>();
 
-            bool isValid = Validator.TryValidateObject(obj, validationContext, validationResults, true); // false para validar solo las propiedades requeridas, true para validar todas las propiedades incluso la de las clases que se llaman
+            bool isValid = Validator.TryValidateObject(obj, validationContext, validationResults, true);
 
             if (!isValid)
             {
-                throw new ArgumentException(validationResults.FirstOrDefault()?.ErrorMessage);
+                var errors = string.Join("; ", validationResults.Select(r => r.ErrorMessage));
+                throw new ArgumentException(errors)
+                    .AddData("Operation", "Validate")
+                    .AddData("TargetType", typeof(T).Name)
+                    .AddData("ErrorCount", validationResults.Count);
             }
         }
     }

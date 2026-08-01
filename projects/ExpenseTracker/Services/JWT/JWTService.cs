@@ -1,14 +1,14 @@
-﻿using ExpenseTracker.Models.Auth;
-using ExpenseTracker.Models.DTOs;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using ExpenseTracker.Exceptions;
+using ExpenseTracker.Models.Auth;
+using ExpenseTracker.Models.DTOs;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ExpenseTracker.Services.JWT
 {
-
     public class JWTService : IJWTService
     {
         private readonly IConfiguration _configuration;
@@ -41,16 +41,15 @@ namespace ExpenseTracker.Services.JWT
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SecretKey"]));
             var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            JwtSecurityToken JwtSecurityToken = new JwtSecurityToken(
+            var jwtSecurityToken = new JwtSecurityToken(
                 issuer: _configuration["JWT:Issuer"],
                 audience: _configuration["JWT:Audience"],
                 claims: claims,
                 expires: expirationTime,
-                signingCredentials: signingCredentials
-            );
+                signingCredentials: signingCredentials);
 
-            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-            string token = tokenHandler.WriteToken(JwtSecurityToken);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            string token = tokenHandler.WriteToken(jwtSecurityToken);
 
             return new AuthResponseDTO
             {
@@ -59,7 +58,7 @@ namespace ExpenseTracker.Services.JWT
                 RefreshToken = CreateRefreshToken(),
                 UserEmail = user.Email,
                 RefreshTokenExpirationDate = DateTime.UtcNow.AddMinutes(
-                    Convert.ToDouble(_configuration["RefreshToken:ExpiresInMinutes"]))
+                    Convert.ToDouble(_configuration["RefreshToken:ExpiresInMinutes"])),
             };
         }
 
@@ -72,6 +71,7 @@ namespace ExpenseTracker.Services.JWT
 
             return Convert.ToBase64String(bytes);
         }
+
         public ClaimsPrincipal? ValidateJWT(string? token)
         {
             if (string.IsNullOrEmpty(token))
@@ -86,18 +86,20 @@ namespace ExpenseTracker.Services.JWT
                 ValidIssuer = _configuration["JWT:Issuer"],
                 ValidAudience = _configuration["JWT:Audience"],
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SecretKey"])),
-                ClockSkew = TimeSpan.Zero
+                ClockSkew = TimeSpan.Zero,
             };
 
-            JwtSecurityTokenHandler jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
-            ClaimsPrincipal ClaimsPrincipal = jwtSecurityTokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken validatedToken);
+            var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+            var claimsPrincipal = jwtSecurityTokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken validatedToken);
 
             if (validatedToken is not JwtSecurityToken jwtSecurityToken ||
                 !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
             {
-                throw new SecurityTokenException("Invalid token");
+                throw new SecurityTokenException("Invalid token")
+                    .AddData("Operation", nameof(ValidateJWT));
             }
-            return ClaimsPrincipal;
+
+            return claimsPrincipal;
         }
     }
 }

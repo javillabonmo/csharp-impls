@@ -6,7 +6,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
+    <NoWarn>$(NoWarn);CS1591;SA1101;SA1309;SA1633;SA1503;SA1600;SA1623;</NoWarn>
+    <Version>1.0.0</Version>
+    <InformationalVersion>$(Version)+$(CommitHash)</InformationalVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AspNetCore.Identity.MongoDbCore" Version="7.0.0" />
@@ -17,11 +24,34 @@
     <PackageReference Include="MongoDB.Bson" Version="3.9.0" />
     <PackageReference Include="MongoDB.Driver" Version="3.9.0" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.16.11" />
+    <PackageReference Include="Serilog" Version="4.4.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+    <PackageReference Include="Serilog.Enrichers.Process" Version="3.0.0" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+    <PackageReference Include="Serilog.Sinks.Grafana.Loki" Version="9.0.1" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+  <!--
+    SourceRevisionId is automatically populated by the .NET SDK when
+    the source directory is a git repository.  We expose it as CommitHash
+    and also bake it into AssemblyInformationalVersion so the commit
+    is visible in the file properties and in any consumer that reads
+    the assembly metadata.
+  -->
+  <Target Name="SetCommitHash" BeforeTargets="CoreGenerateAssemblyInfo">
+    <Exec Command="git rev-parse --short HEAD" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="low">
+      <Output TaskParameter="ConsoleOutput" PropertyName="CommitHash" />
+    </Exec>
+    <!-- Fallback when git is unavailable (e.g. Docker build without .git) -->
+    <PropertyGroup Condition="'$(CommitHash)' == ''">
+      <CommitHash>unknown</CommitHash>
+    </PropertyGroup>
+  </Target>
 
   <ItemGroup>
     <Folder Include="Tests\" />

@@ -1,6 +1,6 @@
-﻿using ExpenseTracker.Models.Auth;
+﻿using System.Security.Claims;
+using ExpenseTracker.Models.Auth;
 using ExpenseTracker.Models.DTOs;
-using System.Security.Claims;
 
 namespace ExpenseTracker.Services.JWT
 {

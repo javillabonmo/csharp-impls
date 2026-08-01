@@ -1,9 +1,9 @@
-﻿using ExpenseTracker.Enums;
+using System.Security.Claims;
+using ExpenseTracker.Enums;
 using ExpenseTracker.Models.ExpenseTracker;
 using ExpenseTracker.Services.ExpenseTracker;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace ExpenseTracker.Controllers;
 
@@ -18,9 +18,6 @@ public class ClothingController : ControllerBase
     {
         _clothingService = clothingService;
     }
-
-    private Guid GetUserId() =>
-        Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Clothing clothing)
@@ -46,11 +43,11 @@ public class ClothingController : ControllerBase
             clothing.UserId = GetUserId();
             var updated = await _clothingService.UpdateClothing(id, clothing, GetUserId());
             return Ok(updated);
-        }
+    }
         catch (KeyNotFoundException ex)
         {
             return NotFound(new { message = ex.Message });
-        }
+    }
     }
 
     [HttpDelete("{id}")]
@@ -95,7 +92,7 @@ public class ClothingController : ControllerBase
                 "3months" => (now.AddMonths(-3), now),
                 _ => (startDate, endDate)
             };
-        }
+    }
 
         var result = await _clothingService.GetPaginatedClothings(
             GetUserId(),
@@ -110,4 +107,7 @@ public class ClothingController : ControllerBase
 
         return Ok(result);
     }
+
+    private Guid GetUserId() =>
+        Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }
