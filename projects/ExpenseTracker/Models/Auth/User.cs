@@ -7,15 +7,18 @@ namespace ExpenseTracker.Models.Auth
 
     public class User : MongoIdentityUser<Guid>
     {
+        public User()
+            : base()
+        {
+        }
+
+        public User(string userName, string email)
+            : base(userName, email)
+        {
+        }
+
         public string? RefreshToken { get; set; }
 
         public DateTime RefreshTokenExpirationDate { get; set; }
-        public User() : base()
-        {
-        }
-
-        public User(string userName, string email) : base(userName, email)
-        {
-        }
     }
 }
