@@ -8,7 +8,11 @@ public static class ExceptionExtensions
         object? value)
         where T : Exception
     {
-        exception.Data[key] = value;
+        if (!exception.Data.Contains(key))
+        {
+            exception.Data[key] = value;
+        }
+
         return exception;
     }
 }

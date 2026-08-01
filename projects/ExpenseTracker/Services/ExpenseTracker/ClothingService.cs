@@ -12,16 +12,13 @@ public class ClothingService : IClothingService
 {
     private readonly IMongoCollection<Clothing> _collection;
     private readonly ClothingFilterBuilder _filterBuilder;
-    private readonly ILogger<ClothingService> _logger;
 
     public ClothingService(
         IMongoDBClientService mongoDbClientService,
-        ClothingFilterBuilder filterBuilder,
-        ILogger<ClothingService> logger)
+        ClothingFilterBuilder filterBuilder)
     {
         _collection = mongoDbClientService.GetCollection<Clothing>("Clothing");
         _filterBuilder = filterBuilder;
-        _logger = logger;
     }
 
     public async Task<Clothing> CreateClothing(Clothing clothing)
@@ -31,7 +28,18 @@ public class ClothingService : IClothingService
 
         ValidationHelper.Validate(clothing);
 
-        await _collection.InsertOneAsync(clothing);
+        try
+        {
+            await _collection.InsertOneAsync(clothing);
+        }
+        catch (MongoException ex)
+        {
+            ex.AddData("Collection", "Clothing")
+              .AddData("Operation", nameof(CreateClothing))
+              .AddData("UserId", clothing.UserId);
+            throw;
+        }
+
         return clothing;
     }
 
@@ -40,17 +48,28 @@ public class ClothingService : IClothingService
         clothing.UpdatedAt = DateTime.UtcNow;
         ValidationHelper.Validate(clothing);
 
-        var result = await _collection.ReplaceOneAsync(
-            c => c.Id == id && c.UserId == userId,
-            clothing);
+        try
+        {
+            var result = await _collection.ReplaceOneAsync(
+                c => c.Id == id && c.UserId == userId,
+                clothing);
 
-        if (result.MatchedCount > 0)
-            return clothing;
+            if (result.MatchedCount > 0)
+                return clothing;
 
-        throw new KeyNotFoundException(
-                $"Clothing with id '{id}' not found or does not belong to the user.")
-            .AddData("ClothingId", id)
-            .AddData("UserId", userId);
+            throw new KeyNotFoundException(
+                    $"Clothing with id '{id}' not found or does not belong to the user.")
+                .AddData("ClothingId", id)
+                .AddData("UserId", userId);
+        }
+        catch (MongoException ex)
+        {
+            ex.AddData("Collection", "Clothing")
+              .AddData("Operation", nameof(UpdateClothing))
+              .AddData("ClothingId", id)
+              .AddData("UserId", userId);
+            throw;
+        }
     }
 
     public async Task<bool> DeleteClothingById(string id, Guid userId)
@@ -83,22 +102,34 @@ public class ClothingService : IClothingService
 
         var sortDefinition = _filterBuilder.BuildSortDefinition(sortBy, sortOrder);
 
-        var countTask = _collection.CountDocumentsAsync(combinedFilter);
-        var itemsTask = _collection
-            .Find(combinedFilter)
-            .Sort(sortDefinition)
-            .Skip((pageIndex - 1) * pageSize)
-            .Limit(pageSize)
-            .ToListAsync();
-
-        await Task.WhenAll(countTask, itemsTask);
-
-        return new PaginatedList<Clothing>
+        try
         {
-            Items = itemsTask.Result,
-            PageIndex = pageIndex,
-            PageSize = pageSize,
-            TotalCount = (int)countTask.Result
-        };
+            var countTask = _collection.CountDocumentsAsync(combinedFilter);
+            var itemsTask = _collection
+                .Find(combinedFilter)
+                .Sort(sortDefinition)
+                .Skip((pageIndex - 1) * pageSize)
+                .Limit(pageSize)
+                .ToListAsync();
+
+            await Task.WhenAll(countTask, itemsTask);
+
+            return new PaginatedList<Clothing>
+            {
+                Items = itemsTask.Result,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = (int)countTask.Result,
+            };
+        }
+        catch (MongoException ex)
+        {
+            ex.AddData("Collection", "Clothing")
+              .AddData("Operation", nameof(GetPaginatedClothings))
+              .AddData("UserId", userId)
+              .AddData("PageIndex", pageIndex)
+              .AddData("PageSize", pageSize);
+            throw;
+        }
     }
 }

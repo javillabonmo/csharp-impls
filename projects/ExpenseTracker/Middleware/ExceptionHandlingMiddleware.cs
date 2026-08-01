@@ -1,6 +1,6 @@
-using System.Collections;
 using System.Net;
 using System.Text.Json;
+using ExpenseTracker.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpenseTracker.Middleware;
@@ -30,37 +30,6 @@ public class ExceptionHandlingMiddleware
         }
     }
 
-    private async Task HandleExceptionAsync(HttpContext context, Exception exception)
-    {
-        LogException(exception);
-
-        var problemDetails = CreateProblemDetails(context, exception);
-
-        context.Response.ContentType = "application/problem+json";
-        context.Response.StatusCode = (int)problemDetails.Status!;
-
-        var jsonOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-        };
-
-        await context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, jsonOptions));
-    }
-
-    private void LogException(Exception exception)
-    {
-        foreach (DictionaryEntry entry in exception.Data)
-        {
-            _logger.LogInformation(
-                "Exception context — {Key}: {Value}",
-                entry.Key,
-                entry.Value);
-        }
-
-        _logger.LogError(exception, "Unhandled exception");
-    }
-
     private static ProblemDetails CreateProblemDetails(HttpContext context, Exception exception)
     {
         var (statusCode, title) = exception switch
@@ -83,8 +52,34 @@ public class ExceptionHandlingMiddleware
             Instance = context.Request.Path,
             Extensions =
             {
-                ["traceId"] = context.TraceIdentifier
-            }
+                ["traceId"] = context.TraceIdentifier,
+            },
         };
+    }
+
+    private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    {
+        // Enrich the exception with request-level context before logging.
+        // These values supplement the global enrichers (MachineName, BuildVersion, etc.)
+        // and the LogContext properties pushed by RequestContextMiddleware.
+        exception.AddData("RequestId", context.TraceIdentifier);
+        exception.AddData("RequestPath", context.Request.Path);
+
+        // Serilog automatically captures Exception.Data as structured log properties,
+        // so a single LogError call is sufficient — no need to log each entry individually.
+        _logger.LogError(exception, "Unhandled exception");
+
+        var problemDetails = CreateProblemDetails(context, exception);
+
+        context.Response.ContentType = "application/problem+json";
+        context.Response.StatusCode = (int)problemDetails.Status!;
+
+        var jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+        };
+
+        await context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, jsonOptions));
     }
 }
