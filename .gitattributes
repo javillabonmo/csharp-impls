@@ -1,0 +1,9 @@
+# Los hooks de husky son scripts shell: siempre LF (CRLF rompe sh en Windows)
+.husky/* text eol=lf
+
+# Archivos de configuración con finales consistentes
+*.sh text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
