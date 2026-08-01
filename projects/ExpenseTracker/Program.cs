@@ -1,16 +1,23 @@
+using System.Text;
 
 using ExpenseTracker.Middleware;
 using ExpenseTracker.Models.Auth;
+using ExpenseTracker.Observability;
 using ExpenseTracker.Services.ExpenseTracker;
 using ExpenseTracker.Services.JWT;
 using ExpenseTracker.Services.Mongo;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
+
 using MongoDB.Bson;
 using MongoDB.Driver;
+
 using Scalar.AspNetCore;
-using System.Text;
+
+using Serilog;
 
 namespace ExpenseTracker
 {
@@ -20,6 +27,17 @@ namespace ExpenseTracker
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Host.UseSerilog(
+    (HostBuilderContext httpBuilder, IServiceProvider serviceProvider, LoggerConfiguration configuration) =>
+    {
+        configuration
+            .ReadFrom.Configuration(builder.Configuration)
+            .ReadFrom.Services(serviceProvider)
+            .Enrich.WithMachineName()
+            .Enrich.WithProcessId()
+            .Enrich.WithThreadId()
+            .Enrich.With<BuildInfoEnricher>();
+    });
 
             builder.Services.AddCors(options =>
             {
@@ -41,7 +59,6 @@ namespace ExpenseTracker
 
             builder.Services.AddAuthorization();
 
-
             var jwtSection = builder.Configuration.GetSection("JWT");
             builder.Services.AddAuthentication(options =>
             {
@@ -58,35 +75,50 @@ namespace ExpenseTracker
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtSection["Issuer"],
                     ValidAudience = jwtSection["Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["SecretKey"]))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["SecretKey"])),
                 };
             });
 
             builder.Services.AddScoped<IJWTService, JWTService>();
+
+            // Expense services
             builder.Services.AddScoped<IClothingService, ClothingService>();
             builder.Services.AddScoped<ClothingFilterBuilder>();
+            builder.Services.AddScoped<IElectronicsService, ElectronicsService>();
+            builder.Services.AddScoped<ElectronicsFilterBuilder>();
+            builder.Services.AddScoped<IGroceriesService, GroceriesService>();
+            builder.Services.AddScoped<GroceriesFilterBuilder>();
+            builder.Services.AddScoped<IHealthExpenseService, HealthExpenseService>();
+            builder.Services.AddScoped<HealthExpenseFilterBuilder>();
+            builder.Services.AddScoped<ILeisureService, LeisureService>();
+            builder.Services.AddScoped<LeisureFilterBuilder>();
+            builder.Services.AddScoped<IOthersService, OthersService>();
+            builder.Services.AddScoped<OthersFilterBuilder>();
+            builder.Services.AddScoped<IUtilitiesService, UtilitiesService>();
+            builder.Services.AddScoped<UtilitiesFilterBuilder>();
 
             builder.Services.AddControllers();
             builder.Services.AddOpenApi(options =>
             {
                 options.AddDocumentTransformer((document, context, cancellationToken) =>
                 {
-                    document.Info = new()
+                    document.Info = new OpenApiInfo
                     {
                         Title = "ExpenseTracker",
                         Version = "v1",
-                        Description = "Expense tracking API with MongoDB integration."
+                        Description = "Expense tracking API with MongoDB integration.",
                     };
                     return Task.CompletedTask;
                 });
             });
+
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-
+            app.UseMiddleware<RequestContextMiddleware>();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             if (app.Environment.IsDevelopment())
@@ -100,9 +132,9 @@ namespace ExpenseTracker
                         .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
                 });
             }
+
             app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
 

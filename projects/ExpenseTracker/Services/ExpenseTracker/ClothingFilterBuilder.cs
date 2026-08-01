@@ -43,7 +43,7 @@ namespace ExpenseTracker.Services.ExpenseTracker
         {
             var filters = new List<FilterDefinition<Clothing>>
             {
-                Builders<Clothing>.Filter.Eq(c => c.UserId, userId)
+                Builders<Clothing>.Filter.Eq(c => c.UserId, userId),
             };
 
             AddDateFilter(filters, startDate, endDate);
@@ -97,6 +97,16 @@ namespace ExpenseTracker.Services.ExpenseTracker
             };
         }
 
+        /// <summary>
+        /// Capitaliza la primera letra para matchear con el nombre de la propiedad C#.
+        /// </summary>
+        private static string Capitalize(string value)
+        {
+            return string.IsNullOrEmpty(value)
+                ? value
+                : char.ToUpperInvariant(value[0]) + value[1..];
+        }
+
         private void AddDateFilter(
             List<FilterDefinition<Clothing>> filters,
             DateTime? startDate,
@@ -144,16 +154,6 @@ namespace ExpenseTracker.Services.ExpenseTracker
             };
 
             filters.Add(propertyFilter);
-        }
-
-        /// <summary>
-        /// Capitaliza la primera letra para matchear con el nombre de la propiedad C#.
-        /// </summary>
-        private static string Capitalize(string value)
-        {
-            return string.IsNullOrEmpty(value)
-                ? value
-                : char.ToUpperInvariant(value[0]) + value[1..];
         }
     }
 }

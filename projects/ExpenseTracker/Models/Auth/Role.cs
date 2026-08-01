@@ -6,11 +6,13 @@ namespace ExpenseTracker.Models.Auth
     [CollectionName("Roles")]
     public class Role : MongoIdentityRole<Guid>
     {
-        public Role() : base()
+        public Role()
+            : base()
         {
         }
 
-        public Role(string roleName) : base(roleName)
+        public Role(string roleName)
+            : base(roleName)
         {
         }
     }
