@@ -1,4 +1,3 @@
-
 using ExpenseTracker.Middleware;
 using ExpenseTracker.Models.Auth;
 using ExpenseTracker.Services.ExpenseTracker;
@@ -63,8 +62,22 @@ namespace ExpenseTracker
             });
 
             builder.Services.AddScoped<IJWTService, JWTService>();
+
+            // Expense services
             builder.Services.AddScoped<IClothingService, ClothingService>();
             builder.Services.AddScoped<ClothingFilterBuilder>();
+            builder.Services.AddScoped<IElectronicsService, ElectronicsService>();
+            builder.Services.AddScoped<ElectronicsFilterBuilder>();
+            builder.Services.AddScoped<IGroceriesService, GroceriesService>();
+            builder.Services.AddScoped<GroceriesFilterBuilder>();
+            builder.Services.AddScoped<IHealthExpenseService, HealthExpenseService>();
+            builder.Services.AddScoped<HealthExpenseFilterBuilder>();
+            builder.Services.AddScoped<ILeisureService, LeisureService>();
+            builder.Services.AddScoped<LeisureFilterBuilder>();
+            builder.Services.AddScoped<IOthersService, OthersService>();
+            builder.Services.AddScoped<OthersFilterBuilder>();
+            builder.Services.AddScoped<IUtilitiesService, UtilitiesService>();
+            builder.Services.AddScoped<UtilitiesFilterBuilder>();
 
             builder.Services.AddControllers();
             builder.Services.AddOpenApi(options =>
