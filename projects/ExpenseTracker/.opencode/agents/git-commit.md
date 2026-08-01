@@ -1,24 +1,6 @@
 ---
+name: git-commit
 description: Guardián de las reglas de Git del repositorio. Guía y valida commits (conventional commits), nombres de ramas, flujo dev/main, PRs, releases y hotfixes. Usar antes de crear cualquier commit, rama o PR, y para revisar o corregir mensajes de commit.
-mode: subagent
-permission:
-  edit: allow
-  bash:
-    - "git log *": allow
-    - "git status*": allow
-    - "git diff*": allow
-    - "git branch*": allow
-    - "git checkout*": allow
-    - "git switch*": allow
-    - "git pull*": allow
-    - "git fetch*": allow
-    - "git add*": allow
-    - "git commit*": allow
-    - "git push*": allow
-    - "git tag*": allow
-    - "git merge*": allow
-    - "git rebase*": allow
-    - "*": ask
 ---
 
 # Git Commit — Reglas de Git del Repositorio
