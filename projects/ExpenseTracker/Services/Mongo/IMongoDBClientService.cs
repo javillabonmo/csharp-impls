@@ -4,7 +4,9 @@ namespace ExpenseTracker.Services.Mongo
 {
     public interface IMongoDBClientService
     {
-        IMongoCollection<T> GetCollection<T>(string collectionName) where T : class;
+        IMongoCollection<T> GetCollection<T>(string collectionName)
+            where T : class;
+
         string HealthCheck();
     }
 }
