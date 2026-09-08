@@ -1,0 +1,25 @@
+{
+  "name": "webcrawler",
+  "module": "./src/index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/jsdom": "^28.0.3",
+    "@types/node": "^26.1.2",
+    "tsx": "^4.23.9",
+    "vitest": "^4.1.10"
+  },
+  "peerDependencies": {
+    "typescript": "^7.0.2"
+  },
+  "scripts": {
+    "start": "bun run ./src/index.ts",
+    "dev": "tsx watch ./src/index.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "jsdom": "^30.0.1",
+    "p-limit": "^7.3.1"
+  }
+}
