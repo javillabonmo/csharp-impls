@@ -4,7 +4,7 @@ namespace unidimensional
 {
     internal class UnidimensionalArray
     {
-        static void Main(string[] args)
+        static void Main()
         {
             //1. Fundamentos programacion | quinta edicion - luis joyanes aguilar
             //pag 264
@@ -67,7 +67,7 @@ namespace unidimensional
             {
                 if (position == i)
                 {
-                    list[i] = "null";
+                    list[i] = null;
                 }
                 else
                 {
