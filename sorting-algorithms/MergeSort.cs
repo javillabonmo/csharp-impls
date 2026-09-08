@@ -6,6 +6,7 @@ namespace SortingAlgorithms
     {
         //la complejidad es O(n*(log(n))) en todos los casos
         //es mas lento que O(n) pero mas rapido que O(n^2)
+        //https://www.ccbp.in/blog/articles/merge-sort-in-c
         public static void Main(string[] args)
         {
 

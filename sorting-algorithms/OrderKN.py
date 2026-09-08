@@ -1,4 +1,7 @@
 #Order K^N – Exponential
+
+# N -> representa un factor de ramificacion (https://en.wikipedia.org/wiki/Branching_factor)
+# ej. 3**N
 def letter_combinations(digits: str) -> list[str]:
     if digits == "":
         return []
@@ -15,8 +18,6 @@ def letter_combinations(digits: str) -> list[str]:
                 new_result.append(combo + letter)
         result = new_result
     return result
-
-# Don't touch below this line
 
 digit_to_letters = {
     "2": "abc",
