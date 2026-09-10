@@ -1,21 +1,23 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /app
 
-# Copy csproj and restore distinct layers
 COPY PersonalBlog.csproj ./
+#primero restauramos las dependencias para 
+#que no se tenga que hacer cada vez que se haga un cambio en el código
 RUN dotnet restore
 
-# Copy everything else and publish
 COPY . ./
-RUN dotnet publish -c Release -o out
+#luego si se toma todo el código y se compila
+RUN dotnet publish -c Release -o out --no-restore
 
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine
+# ---------- Runtime(todo lo necesario para ejecutar la aplicación, NO para compilar) ----------
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime
 WORKDIR /app
 
-# Install ICU libraries for globalization support (needed for es-CO culture)
-RUN apk add --no-cache icu-data-full icu-libs
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
-
 COPY --from=build /app/out .
+
+# Usuario no root
+RUN adduser -D appuser && chown -R appuser /app
+USER appuser
+
 ENTRYPOINT ["dotnet", "PersonalBlog.dll"]
