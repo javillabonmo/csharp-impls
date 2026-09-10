@@ -18,21 +18,12 @@ public class HomeController : Controller
     private readonly IArticleService _articleService;
     private readonly ILogger<HomeController> _logger;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="HomeController"/> class.
-    /// </summary>
-    /// <param name="articleService">The article service.</param>
-    /// <param name="logger">The logger instance.</param>
     public HomeController(IArticleService articleService, ILogger<HomeController> logger)
     {
-        this._articleService = articleService;
-        this._logger = logger;
+        _articleService = articleService;
+        _logger = logger;
     }
 
-    /// <summary>
-    /// Redirects the root URL to the home page.
-    /// </summary>
-    /// <returns>A redirect to the Index action.</returns>
     [HttpGet]
     [Route("/")]
     public async Task<IActionResult> Root()

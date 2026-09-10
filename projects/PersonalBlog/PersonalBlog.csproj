@@ -42,4 +42,9 @@
       <PackageReference Include="xunit.v3.core" Version="3.2.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="docs\decisions\" />
+      <Folder Include="docs\user_stories\" />
+    </ItemGroup>
+
 </Project>

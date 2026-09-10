@@ -19,10 +19,6 @@ public class AdminController : Controller
 {
     private readonly IArticleService _articleService;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AdminController"/> class.
-    /// </summary>
-    /// <param name="articleService">The article service.</param>
     public AdminController(IArticleService articleService)
     {
         this._articleService = articleService;
