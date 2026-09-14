@@ -22,11 +22,19 @@ resource "aws_instance" "ec2-personalblog" {
   vpc_security_group_ids = [aws_security_group.personalblog-sg.id]
   subnet_id              = aws_subnet.tbrzc-subnet-public-1a.id
 
+  key_name = aws_key_pair.personalblog.key_name
+
 
   tags = {
     Name = var.instance_name
   }
 }
+
+resource "aws_key_pair" "personalblog" {
+  key_name   = "personalblog-key"
+  public_key = file("~/.ssh/personalblog-key.pub")
+}
+
 resource "aws_internet_gateway" "tbrzc-igw" {
   vpc_id = module.tbrzc.vpc_id
 
